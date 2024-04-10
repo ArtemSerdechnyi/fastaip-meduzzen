@@ -8,7 +8,7 @@ _app = None
 
 def get_app() -> FastAPI:
     global _app
-    if _app is not None:
+    if _app:
         return _app
 
     _app = FastAPI(
