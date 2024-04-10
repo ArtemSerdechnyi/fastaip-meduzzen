@@ -16,3 +16,9 @@ make run
 ```
 
 4) Check '/' path, by default 'http://localhost:8000/'.
+
+5) Run tests:
+
+```bash
+make tests
+```

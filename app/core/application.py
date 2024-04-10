@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-import app.routers as r
+from app.routers import health_check
 from app.core.settings import settings
 
 _app = None
@@ -15,5 +15,5 @@ def get_app() -> FastAPI:
         debug=settings.debug,
         title="Meduzzen internship",
     )
-    _app.include_router(r.health_check.router)
+    _app.include_router(health_check.router)
     return _app

@@ -6,3 +6,7 @@ run:
 .PHONY: expre
 expre:
 	poetry export --without-hashes --format=requirements.txt > requirements.txt
+
+.PHONY: tests
+tests:
+	poetry run pytest tests/
