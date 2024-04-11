@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /code
 
-COPY ./requirements.txt /code/requirements.txt
+COPY ./requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
@@ -15,6 +15,4 @@ ADD .env.docker /code/.env
 
 EXPOSE ${PORT}
 
-COPY ./app /code/app
-
-
+COPY ./app ./app
