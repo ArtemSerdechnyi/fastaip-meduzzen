@@ -12,7 +12,7 @@ def get_app() -> FastAPI:
         return _app
 
     _app = FastAPI(
-        debug=settings.debug,
+        debug=settings.DEBUG,
         title="Meduzzen internship",
     )
     _app.include_router(health_check.router)
