@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PORT: ${PORT}
+    command: sh -c "PYTHONPATH=$(pwd) python app/main.py"
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:
+      - ./app:/code/app
+    env_file:
+      - .env.docker
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
