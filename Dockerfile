@@ -11,8 +11,6 @@ COPY ./requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-ADD .env.docker /code/.env
-
 EXPOSE ${PORT}
 
 COPY ./app ./app
