@@ -22,3 +22,12 @@ make run
 ```bash
 make tests
 ```
+
+6) Docker:
+```bash
+docker-compose build
+```
+
+```bash
+docker-compose up
+```
