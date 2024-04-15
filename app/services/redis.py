@@ -19,7 +19,9 @@ _conf = _RedisConfig()
 
 
 async def get_redis_client() -> aioredis.Redis:
-    return await aioredis.from_url(f"redis://{_conf.REDIS_HOST}:{_conf.REDIS_PORT}")
+    return await aioredis.from_url(
+        f"redis://{_conf.REDIS_HOST}:{_conf.REDIS_PORT}"
+    )
 
 
 @asynccontextmanager

@@ -17,8 +17,17 @@ anyio = {extras = ["trio"], version = "^4.3.0"}
 sqlalchemy = "^2.0.29"
 asyncpg = "^0.29.0"
 redis = "^5.0.3"
-
+ruff = "^0.3.7"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+extend-select = ["E501"]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"__init__.py" = ["F401"]

@@ -13,6 +13,7 @@ def _create_app() -> FastAPI:
         title="Meduzzen internship",
         lifespan=lifespan_redis,
     )
+
     app.include_router(health_check.router)
 
     return app

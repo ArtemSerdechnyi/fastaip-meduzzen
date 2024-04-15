@@ -1,7 +1,11 @@
 from typing import AsyncGenerator
 
 from pydantic_settings import BaseSettings
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import (
+    create_async_engine,
+    AsyncSession,
+    async_sessionmaker,
+)
 from sqlalchemy.pool import NullPool
 
 
@@ -19,8 +23,10 @@ class _PostgresConfig(BaseSettings):
 
 
 _conf = _PostgresConfig()
-_DATABASE_URL = f"postgresql+asyncpg://{_conf.POSTGRES_USER}:{_conf.POSTGRES_PASSWORD}@" \
-               f"{_conf.POSTGRES_SERVER}:{_conf.POSTGRES_PORT}/{_conf.POSTGRES_DB}"
+_DATABASE_URL = (
+    f"postgresql+asyncpg://{_conf.POSTGRES_USER}:{_conf.POSTGRES_PASSWORD}@"
+    f"{_conf.POSTGRES_SERVER}:{_conf.POSTGRES_PORT}/{_conf.POSTGRES_DB}"
+)
 
 _engine = create_async_engine(_DATABASE_URL, poolclass=NullPool)
 _async_session_maker = async_sessionmaker(_engine, expire_on_commit=False)
