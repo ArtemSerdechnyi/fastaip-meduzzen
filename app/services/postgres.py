@@ -11,6 +11,10 @@ from sqlalchemy.pool import NullPool
 
 class _PostgresConfig(BaseSettings):
     POSTGRES_SERVER: str = "localhost"
+
+
+
+
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "postgres"
     POSTGRES_USER: str = "postgres"
