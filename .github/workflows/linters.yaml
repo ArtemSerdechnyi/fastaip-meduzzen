@@ -1,4 +1,4 @@
-name: linters
+name: ruff-linter
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  auto-correct:
+  code-linter:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
