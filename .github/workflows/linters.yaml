@@ -32,9 +32,8 @@ jobs:
       - name: Ruff code format
         run: ruff format app/
 
-      - name: Commit changes
+      - name: Commit
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Ruff code formatter auto commit. By .github/workflows/linters.yaml"
           file_pattern: "app/**/*.py"
-          repository: .app/
