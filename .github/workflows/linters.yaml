@@ -1,0 +1,40 @@
+name: linters
+
+on:
+  push:
+    paths:
+      - "app/**/*.py"
+
+permissions:
+  contents: write
+
+jobs:
+  auto-correct:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Ruff
+        run: python -m pip install ruff
+
+      - name: Ruff code check
+        run: ruff check app/
+
+      - name: Ruff sorting imports
+        run: ruff check app/ --select I --fix
+
+      - name: Ruff code format
+        run: ruff format app/
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Ruff code formatter auto commit. By .github/workflows/linters.yaml"
+          file_pattern: "app/**/*.py"
+          repository: .app/
