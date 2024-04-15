@@ -1,12 +1,12 @@
 from typing import AsyncGenerator
-from sqlalchemy.pool import NullPool
+
 from pydantic_settings import BaseSettings
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-
+from sqlalchemy.pool import NullPool
 
 
 class _PostgresConfig(BaseSettings):
@@ -14,11 +14,6 @@ class _PostgresConfig(BaseSettings):
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "postgres"
     POSTGRES_USER: str = "postgres"
-
-
-
-
-
 
     POSTGRES_PASSWORD: str = "postgres"
 
