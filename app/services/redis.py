@@ -25,7 +25,6 @@ async def get_redis_client() -> aioredis.Redis:
 @asynccontextmanager
 async def lifespan_redis(app: FastAPI):
     try:
-
         app.redis = await get_redis_client()
         yield
     finally:
