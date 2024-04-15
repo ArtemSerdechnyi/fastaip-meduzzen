@@ -1,7 +1,7 @@
 import pytest
-
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.services import get_async_session
 
 

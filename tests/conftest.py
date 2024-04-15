@@ -2,7 +2,7 @@ from typing import AsyncGenerator
 
 import pytest
 from fastapi import FastAPI
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
 from app.main import get_app
 
