@@ -31,3 +31,11 @@ docker-compose build
 ```bash
 docker-compose up
 ```
+
+```yaml
+on:
+  workflow_run:
+    workflows: [ "ruff-linter", "export requirements" ]
+    types:
+      - completed
+```
