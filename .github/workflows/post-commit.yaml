@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: 'pip'
+          cache: "pip"
 
       - name: Install dependencies
         run: pip install poetry==1.7.1 ruff==0.3.7
@@ -31,7 +31,6 @@ jobs:
 
       - name: Ruff refactor code
         run: |
-          echo "${{github.event.head_commit.modified}}"
           ruff check app/
           ruff check app/ --select I --fix
           ruff format app/
