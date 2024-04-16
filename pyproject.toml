@@ -18,7 +18,6 @@ sqlalchemy = "^2.0.29"
 asyncpg = "^0.29.0"
 redis = "^5.0.3"
 ruff = "^0.3.7"
-aioredis = "^2.0.1"
 
 [build-system]
 requires = ["poetry-core"]
