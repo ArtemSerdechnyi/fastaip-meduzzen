@@ -1,19 +1,16 @@
 from typing import AsyncGenerator
 
-
+from pydantic_settings import BaseSettings
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
 from sqlalchemy.pool import NullPool
-from pydantic_settings import BaseSettings
+
+
 class _PostgresConfig(BaseSettings):
     POSTGRES_SERVER: str = "localhost"
-
-
-
-
 
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "postgres"
