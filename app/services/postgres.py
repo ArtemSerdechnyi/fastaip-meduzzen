@@ -13,8 +13,6 @@ from sqlalchemy.ext.asyncio import (
 )
 
 
-
-
 class _PostgresConfig(BaseSettings):
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: str = "5432"
