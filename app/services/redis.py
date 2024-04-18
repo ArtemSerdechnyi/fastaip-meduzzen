@@ -15,12 +15,12 @@ class _RedisConfig(BaseSettings):
         extra = "ignore"
 
 
-_conf = _RedisConfig()
+_redis_conf = _RedisConfig()
 
 
 async def get_redis_client() -> aioredis.Redis:
     return await aioredis.from_url(
-        f"redis://{_conf.REDIS_HOST}:{_conf.REDIS_PORT}"
+        f"redis://{_redis_conf.REDIS_HOST}:{_redis_conf.REDIS_PORT}"
     )
 
 
