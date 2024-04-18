@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.core.settings import settings
+from app.core.settings import app_settings
 from app.routers import health_check
 from app.services.redis import lifespan_redis
 
@@ -9,7 +9,7 @@ _app = None
 
 def _create_app() -> FastAPI:
     app = FastAPI(
-        debug=settings.DEBUG,
+        debug=app_settings.DEBUG,
         title="Meduzzen internship",
         lifespan=lifespan_redis,
     )

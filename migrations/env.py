@@ -5,13 +5,15 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.services.postgres import _pg_conf
+from app.services.postgres import PostgresDB
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-
 section = config.config_ini_section
+
+# get variables from environment
+_pg_conf = PostgresDB().config
 config.set_section_option(section, "DB_HOST", _pg_conf.POSTGRES_SERVER)
 config.set_section_option(section, "DB_PORT", _pg_conf.POSTGRES_PORT)
 config.set_section_option(section, "DB_USER", _pg_conf.POSTGRES_USER)

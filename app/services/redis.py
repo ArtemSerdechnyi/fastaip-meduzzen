@@ -2,25 +2,13 @@ from contextlib import asynccontextmanager
 
 import redis.asyncio as aioredis
 from fastapi import FastAPI
-from pydantic_settings import BaseSettings
 
-
-class _RedisConfig(BaseSettings):
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
-
-    class Config:
-        env_file = ".env.docker"
-        env_file_encoding = "utf-8"
-        extra = "ignore"
-
-
-_redis_conf = _RedisConfig()
+from app.core.settings import redis_conf
 
 
 async def get_redis_client() -> aioredis.Redis:
     return await aioredis.from_url(
-        f"redis://{_redis_conf.REDIS_HOST}:{_redis_conf.REDIS_PORT}"
+        f"redis://{redis_conf.REDIS_HOST}:{redis_conf.REDIS_PORT}"
     )
 
 
