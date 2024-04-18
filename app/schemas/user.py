@@ -1,10 +1,10 @@
 import uuid
 from abc import ABC
 
-from pydantic import BaseModel, EmailStr, Field, SecretStr, model_validator
+from pydantic import BaseModel, EmailStr, Field, model_validator
 from typing_extensions import Self
 
-from app.utils.generics import Name, Password, Hash
+from app.utils.generics import Name, Password
 from app.utils.schemas import optionalise_fields
 
 
@@ -46,12 +46,12 @@ class UserSignUpRequestScheme(
 ):
     password_confirm: Password
 
-    @model_validator(mode='after')
+    @model_validator(mode="after")
     def check_passwords_match(self) -> Self:
         pw1 = self.password
         pw2 = self.password_confirm
         if pw1 is not None and pw2 is not None and pw1 != pw2:
-            raise ValueError('passwords do not match')
+            raise ValueError("passwords do not match")
         return self
 
 
