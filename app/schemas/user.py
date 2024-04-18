@@ -1,7 +1,7 @@
 import uuid
 from abc import ABC
 
-from pydantic import EmailStr, Field, BaseModel, SecretStr
+from pydantic import BaseModel, EmailStr, Field, SecretStr
 
 from app.utils.generics import Name
 from app.utils.schemas import optionalise_fields

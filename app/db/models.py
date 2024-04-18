@@ -1,8 +1,8 @@
 import datetime
 import uuid
 
-from sqlalchemy import Column, String, Boolean, MetaData
-from sqlalchemy.dialects.postgresql import UUID, TIMESTAMP
+from sqlalchemy import Boolean, Column, MetaData, String
+from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID
 from sqlalchemy.orm import declarative_base
 
 metadata = MetaData()
