@@ -29,11 +29,14 @@ jobs:
       - name: Export requirements.txt
         run: poetry export --without-hashes --format=requirements.txt > requirements.txt
 
-      - name: Ruff refactor code
-        run: |
-          ruff check app/
-          ruff format app/
-          ruff check app/ --select I --fix
+      - name: Ruff check
+        run: ruff check app/
+
+      - name: Ruff format
+        run: ruff format app/
+
+      - name: Ruff sort imports
+        run: ruff check app/ --select I --fix
 
       - name: Commit
         uses: stefanzweifel/git-auto-commit-action@v5
