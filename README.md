@@ -24,6 +24,7 @@ make tests
 ```
 
 6) Docker:
+
 ```bash
 docker-compose build
 ```
@@ -32,12 +33,16 @@ docker-compose build
 docker-compose up
 ```
 
-```python
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
-        yield session
+7) Alembic:
 
+Create migrations:
 
-async def get_user_db(session: AsyncSession = Depends(get_async_session)):
-    yield SQLAlchemyUserDatabase(session, User)
+```bash
+alembic revision --autogenerate -m "text"
+```
+
+Apply migrations:
+
+```bash
+alembic upgrade heads
 ```
