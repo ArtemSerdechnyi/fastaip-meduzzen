@@ -29,8 +29,8 @@ jobs:
       - name: Export requirements.txt
         run: poetry export --without-hashes --format=requirements.txt > requirements.txt
 
-      - name: Ruff check
-        run: ruff check --exit-zero app/
+      - name: Ruff fix
+        run: ruff check --fix app/
 
       - name: Ruff format
         run: ruff format app/
