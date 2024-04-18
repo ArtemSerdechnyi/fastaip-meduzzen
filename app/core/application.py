@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from app.core.settings import app_settings
 from app.db.redis import lifespan_redis
-from app.routers import health_check
+from app.routers import main_router
 
 _app = None
 
@@ -14,7 +14,7 @@ def _create_app() -> FastAPI:
         lifespan=lifespan_redis,
     )
 
-    app.include_router(health_check.router)
+    app.include_router(main_router)
 
     return app
 
