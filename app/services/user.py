@@ -1,8 +1,9 @@
+from passlib.context import CryptContext
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
-from passlib.context import CryptContext
+
 from app.db.models import User
-from app.utils.generics import Password, Hash, Name
+from app.utils.generics import Hash, Name, Password
 
 
 class PasswordManager:

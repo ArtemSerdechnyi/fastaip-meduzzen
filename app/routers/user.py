@@ -1,10 +1,11 @@
 from logging import getLogger
-from fastapi import HTTPException, Depends, APIRouter
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.user import UserSignUpRequestScheme
 from app.db.postgres import get_async_session
+from app.schemas.user import UserSignUpRequestScheme
 from app.services.user import UserService
 
 router = APIRouter()

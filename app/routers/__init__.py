@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 
-from . import health_check
-from . import user
+from . import health_check, user
 
 __all__ = [
     "main_router",
