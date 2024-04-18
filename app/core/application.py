@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from app.core.settings import app_settings
 from app.routers import health_check
-from app.services.redis import lifespan_redis
+from app.db.redis import lifespan_redis
 
 _app = None
 
