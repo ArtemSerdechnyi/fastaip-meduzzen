@@ -3,7 +3,7 @@ import uuid
 
 from sqlalchemy import Boolean, Column, MetaData, String
 from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID
-from sqlalchemy.orm import DeclarativeBase, declarative_base
+from sqlalchemy.orm import declarative_base
 
 metadata = MetaData()
 Base = declarative_base(metadata=metadata)
