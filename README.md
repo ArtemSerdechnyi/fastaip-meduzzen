@@ -24,10 +24,25 @@ make tests
 ```
 
 6) Docker:
+
 ```bash
 docker-compose build
 ```
 
 ```bash
 docker-compose up
+```
+
+7) Alembic:
+
+Create migrations:
+
+```bash
+alembic revision --autogenerate -m "text"
+```
+
+Apply migrations:
+
+```bash
+alembic upgrade heads
 ```

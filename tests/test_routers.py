@@ -9,5 +9,5 @@ async def test_health_check(ac: AsyncClient):
     assert response.json() == {
         "status_code": 200,
         "detail": "ok",
-        "result": "working"
+        "result": "working",
     }

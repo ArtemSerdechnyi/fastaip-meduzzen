@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   db:
@@ -27,8 +27,7 @@ services:
       - ${REDIS_PORT}
     ports:
       - "${REDIS_PORT}:${REDIS_PORT}"
-    env_file:
-      - .env.docker
+    env_file: .env.docker
     networks:
       - backend
 
@@ -39,13 +38,12 @@ services:
       dockerfile: Dockerfile
       args:
         PORT: ${PORT}
-    command: sh -c "PYTHONPATH=$(pwd) python app/main.py"
+    command: sh -c "PYTHONPATH=$(pwd) python -u app/main.py"
     ports:
       - "${PORT}:${PORT}"
     volumes:
       - ./app:/code/app
-    env_file:
-      - .env.docker
+    env_file: .env.docker
     networks:
       - backend
     depends_on:
