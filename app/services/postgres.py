@@ -3,14 +3,13 @@ from typing import AsyncGenerator
 
 from pydantic_settings import BaseSettings
 from sqlalchemy import MetaData
-
-from sqlalchemy.pool import NullPool
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import NullPool
 
 
 class _PostgresConfig(BaseSettings):
