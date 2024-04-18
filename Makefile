@@ -27,4 +27,10 @@ expre:
 tests:
 	poetry run pytest -s tests/
 
+.PHONY: mm
+mm:
+	poetry run alembic revision --autogenerate
 
+.PHONY: migrate
+migrate:
+	poetry run alembic upgrade heads
