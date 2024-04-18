@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
 from app.core.settings import app_settings
-from app.routers import health_check
 from app.db.redis import lifespan_redis
+from app.routers import health_check
 
 _app = None
 
