@@ -16,6 +16,9 @@ class _AppSettings(BaseSettings):
 app_settings = _AppSettings()
 
 
+# postgres settings
+
+
 class _PostgresConfig(BaseSettings):
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: str = "5432"
@@ -32,6 +35,9 @@ class _PostgresConfig(BaseSettings):
 postgres_config = _PostgresConfig()
 
 
+# redis settings
+
+
 class _RedisConfig(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
@@ -43,3 +49,7 @@ class _RedisConfig(BaseSettings):
 
 
 redis_conf = _RedisConfig()
+
+
+# generic settings
+USERS_PAGE_LIMIT: int = 10

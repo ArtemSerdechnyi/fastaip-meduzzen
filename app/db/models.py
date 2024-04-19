@@ -17,7 +17,8 @@ class User(Base):
     first_name = Column(String)
     last_name = Column(String)
     registered_at = Column(
-        TIMESTAMP, default=datetime.datetime.now(datetime.timezone.utc)
+        TIMESTAMP(timezone=True),
+        default=lambda: datetime.datetime.now(datetime.timezone.utc),
     )
     email = Column(String, nullable=False, unique=True)
     is_active = Column(Boolean(), default=True, nullable=False)

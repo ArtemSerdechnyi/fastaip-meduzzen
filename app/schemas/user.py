@@ -1,8 +1,8 @@
 import uuid
 from abc import ABC
 
-from pydantic import BaseModel, EmailStr, Field, model_validator
-from typing_extensions import Self
+from pydantic import BaseModel, EmailStr, Field, model_validator, ConfigDict
+from typing_extensions import Self, Optional
 
 from app.utils.generics import Name, Password
 from app.utils.schemas import optionalise_fields
@@ -17,8 +17,8 @@ class _UsernameSchemeMixin:
 
 
 class _UserAllNamesSchemeMixin(_UsernameSchemeMixin):
-    first_name: Name
-    last_name: Name
+    first_name: Optional[Name]
+    last_name: Optional[Name]
 
 
 class _UserEmailSchemeMixin:
@@ -35,6 +35,8 @@ class _UserPasswordSchemeMixin:
 class UserDetailResponseScheme(
     _UserAllNamesSchemeMixin, _UserEmailSchemeMixin, _UserBaseScheme
 ):
+    model_config = ConfigDict(from_attributes=True)
+
     id: uuid.UUID = Field(default_factory=uuid.uuid4)
 
 
@@ -61,13 +63,14 @@ class UserSignInRequestScheme(_UserPasswordSchemeMixin, _UserBaseScheme):
 
 @optionalise_fields
 class UserUpdateRequestScheme(
-    _UsernameSchemeMixin,
+    _UserAllNamesSchemeMixin,
     _UserEmailSchemeMixin,
-    _UserPasswordSchemeMixin,
     _UserBaseScheme,
 ):
     pass
 
 
 class UsersListResponseScheme(_UserBaseScheme):
+    model_config = ConfigDict(from_attributes=True)
+
     users: list[UserDetailResponseScheme]

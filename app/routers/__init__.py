@@ -9,4 +9,4 @@ __all__ = [
 main_router = APIRouter()
 
 main_router.include_router(health_check.router)
-main_router.include_router(user.router, prefix="/user", tags=["user"])
+main_router.include_router(user.user_router, prefix="/user", tags=["user"])
