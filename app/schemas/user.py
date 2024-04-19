@@ -1,8 +1,8 @@
 import uuid
 from abc import ABC
 
-from pydantic import BaseModel, EmailStr, Field, model_validator, ConfigDict
-from typing_extensions import Self, Optional
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
+from typing_extensions import Optional, Self
 
 from app.utils.generics import Name, Password
 from app.utils.schemas import optionalise_fields

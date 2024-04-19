@@ -6,10 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.postgres import get_async_session
 from app.schemas.user import (
-    UserSignUpRequestScheme,
-    UserUpdateRequestScheme,
     UserDetailResponseScheme,
+    UserSignUpRequestScheme,
     UsersListResponseScheme,
+    UserUpdateRequestScheme,
 )
 from app.services.user import UserService
 from app.utils.user import get_users_page_limit

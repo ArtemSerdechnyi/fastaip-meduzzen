@@ -3,17 +3,17 @@ from logging import getLogger
 
 from fastapi import HTTPException
 from passlib.context import CryptContext
-from sqlalchemy import select, update, and_
+from sqlalchemy import and_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User
-from app.utils.generics import Hash, Password
 from app.schemas.user import (
-    UserSignUpRequestScheme,
     UserDetailResponseScheme,
-    UserUpdateRequestScheme,
+    UserSignUpRequestScheme,
     UsersListResponseScheme,
+    UserUpdateRequestScheme,
 )
+from app.utils.generics import Hash, Password
 
 logger = getLogger(__name__)
 
