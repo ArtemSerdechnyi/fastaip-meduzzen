@@ -101,6 +101,11 @@ def test_password_manager():
 
 # Test UserService
 
+async def test_user_service(service: UserService):
+    service.query = select(User)
+    with pytest.raises(AttributeError):
+        service.query = select(User).where(User.is_active == True)
+
 
 async def test_create_user(service: UserService):
     scheme = user1_scheme
