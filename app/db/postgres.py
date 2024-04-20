@@ -1,5 +1,5 @@
 import logging
-from typing import AsyncGenerator, Type
+from typing import AsyncGenerator
 
 from pydantic_settings import BaseSettings
 from sqlalchemy.ext.asyncio import (

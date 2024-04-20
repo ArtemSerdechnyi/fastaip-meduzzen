@@ -4,9 +4,7 @@ from logging import getLogger
 from fastapi import HTTPException
 from passlib.context import CryptContext
 from sqlalchemy import and_, select, update
-from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import query
 
 from app.db.models import User
 from app.schemas.user import (
