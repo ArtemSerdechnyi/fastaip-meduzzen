@@ -35,7 +35,7 @@ class PasswordManager:  # todo mb refactor to async
         return self._hashed_password
 
     def verify_password(
-            self, plain_password: Password, hashed_password: Hash
+        self, plain_password: Password, hashed_password: Hash
     ) -> bool:
         plain_password = str(plain_password)
         return self._pwd_context.verify(plain_password, hashed_password)
@@ -53,7 +53,9 @@ class UserService:
     @query.setter
     def query(self, value):
         if self._query is not None and value is not None:
-            raise AttributeError("Query already exists. Only one query per session!")
+            raise AttributeError(
+                "Query already exists. Only one query per session!"
+            )
         self._query = value
 
     async def __aenter__(self):
@@ -85,7 +87,7 @@ class UserService:
         return UserDetailResponseScheme.from_orm(user)
 
     async def update_user(
-            self, id: uuid.UUID, scheme: UserUpdateRequestScheme
+        self, id: uuid.UUID, scheme: UserUpdateRequestScheme
     ):
         self.query = (
             update(User)
