@@ -4,7 +4,9 @@ from logging import getLogger
 from fastapi import HTTPException
 from passlib.context import CryptContext
 from sqlalchemy import and_, select, update
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import query
 
 from app.db.models import User
 from app.schemas.user import (
@@ -62,13 +64,13 @@ class UserService:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if exc_type is None:
             if self._query is not None:
-                await self.session.execute(self._query)
+                res = await self.session.execute(self._query)
             await self.session.commit()
         else:
             await self.session.rollback()
             logger.error(f"Error occurred {exc_type}, {exc_val}, {exc_tb}")
             raise HTTPException(status_code=500)
-        return False
+        return False  # mb True?
 
     async def create_user(self, scheme: UserSignUpRequestScheme):
         password_hash = PasswordManager(scheme.password).hash
@@ -90,6 +92,7 @@ class UserService:
             update(User)
             .where(and_(User.user_id == id, User.is_active == True))
             .values(scheme.dict(exclude_unset=True))
+            .returning(User.user_id)
         )
 
     async def delete_user(self, id: uuid.UUID):
@@ -100,6 +103,9 @@ class UserService:
         )
 
     async def get_all_users(self, page, limit) -> UsersListResponseScheme:
+        if page < 1:
+            raise AttributeError(f"Page must be >= 1, page: {page}")
+
         query = (
             select(User)
             .where(User.is_active == True)

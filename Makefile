@@ -17,7 +17,7 @@ runall:
 
 .PHONY: drop
 drop:
-	${DC} down
+	${DC} down && doker network prune --force
 
 .PHONY: expre
 expre:
@@ -25,7 +25,7 @@ expre:
 
 .PHONY: tests
 tests:
-	poetry run pytest -s tests/
+	poetry run pytest -s tests/ -W ignore::DeprecationWarning
 
 .PHONY: mm
 mm:

@@ -35,6 +35,22 @@ class _PostgresConfig(BaseSettings):
 postgres_config = _PostgresConfig()
 
 
+class _PostgresConfigTest(BaseSettings):
+    POSTGRES_SERVER_TEST: str = "localhost"
+    POSTGRES_PORT_TEST: str = "5433"
+    POSTGRES_DB_TEST: str = "postgres"
+    POSTGRES_USER_TEST: str = "postgres"
+    POSTGRES_PASSWORD_TEST: str = "postgres"
+
+    class Config:
+        env_file = ".env.docker"
+        env_file_encoding = "utf-8"
+        extra = "ignore"
+
+
+postgres_config_test = _PostgresConfigTest()
+
+
 # redis settings
 
 
@@ -49,7 +65,6 @@ class _RedisConfig(BaseSettings):
 
 
 redis_conf = _RedisConfig()
-
 
 # generic settings
 USERS_PAGE_LIMIT: int = 10

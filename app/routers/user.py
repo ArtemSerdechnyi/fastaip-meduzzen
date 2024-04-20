@@ -1,5 +1,4 @@
 import uuid
-from logging import getLogger
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,7 +14,6 @@ from app.services.user import UserService
 from app.utils.user import get_users_page_limit
 
 user_router = APIRouter()
-logger = getLogger(__name__)
 
 
 @user_router.post("/")

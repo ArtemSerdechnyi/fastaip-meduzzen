@@ -1,6 +1,7 @@
 import logging
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Type
 
+from pydantic_settings import BaseSettings
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -8,18 +9,19 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import NullPool
 
-from app.core.settings import _PostgresConfig, postgres_config
+from app.core.settings import postgres_config
 
 
-class PostgresDB:
-    _pg_conf = postgres_config
-    _DATABASE_URL = (
-        f"postgresql+asyncpg://{_pg_conf.POSTGRES_USER}:{_pg_conf.POSTGRES_PASSWORD}@"
-        f"{_pg_conf.POSTGRES_SERVER}:{_pg_conf.POSTGRES_PORT}/{_pg_conf.POSTGRES_DB}"
-    )
+class PostgresDB[T: BaseSettings]:
+    def __init__(self, config: [T]):
+        self._pg_conf = config
+        self._DATABASE_URL = (
+            f"postgresql+asyncpg://{self._pg_conf.POSTGRES_USER}:{self._pg_conf.POSTGRES_PASSWORD}@"
+            f"{self._pg_conf.POSTGRES_SERVER}:{self._pg_conf.POSTGRES_PORT}/{self._pg_conf.POSTGRES_DB}"
+        )
 
     @property
-    def config(self) -> _PostgresConfig:
+    def config(self) -> [T]:
         return self._pg_conf
 
     @property
@@ -27,10 +29,12 @@ class PostgresDB:
         return self._DATABASE_URL
 
 
-_engine = create_async_engine(PostgresDB().url, poolclass=NullPool)
+_engine = create_async_engine(
+    PostgresDB(postgres_config).url, poolclass=NullPool
+)
 _async_session_maker = async_sessionmaker(_engine, expire_on_commit=False)
 
-logging.info(f"Database URL: {PostgresDB().url}")
+logging.info(f"Database URL: {PostgresDB(postgres_config).url}")
 
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:

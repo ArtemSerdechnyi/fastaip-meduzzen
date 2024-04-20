@@ -37,7 +37,7 @@ class UserDetailResponseScheme(
 ):
     model_config = ConfigDict(from_attributes=True)
 
-    id: uuid.UUID = Field(default_factory=uuid.uuid4)
+    user_id: uuid.UUID
 
 
 class UserSignUpRequestScheme(

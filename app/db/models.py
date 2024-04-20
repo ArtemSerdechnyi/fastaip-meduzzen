@@ -1,12 +1,13 @@
 import datetime
 import uuid
 
-from sqlalchemy import Boolean, Column, MetaData, String
+from sqlalchemy import Boolean, Column, String
 from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import DeclarativeBase
 
-metadata = MetaData()
-Base = declarative_base(metadata=metadata)
+
+class Base(DeclarativeBase):
+    pass
 
 
 class User(Base):
