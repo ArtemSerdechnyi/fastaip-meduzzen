@@ -65,6 +65,3 @@ class _RedisConfig(BaseSettings):
 
 
 redis_conf = _RedisConfig()
-
-# generic settings
-USERS_PAGE_LIMIT: int = 10

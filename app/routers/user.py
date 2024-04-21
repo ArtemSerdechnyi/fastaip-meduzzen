@@ -23,7 +23,6 @@ async def create_new_user(
 ):
     async with UserService(db) as service:
         await service.create_user(body)
-
     return {"status_code": 200, "detail": "User created"}
 
 

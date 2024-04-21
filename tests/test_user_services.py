@@ -101,11 +101,6 @@ def test_password_manager():
 
 # Test UserService
 
-async def test_user_service(service: UserService):
-    service.query = select(User)
-    with pytest.raises(AttributeError):
-        service.query = select(User).where(User.is_active == True)
-
 
 async def test_create_user(service: UserService):
     scheme = user1_scheme
@@ -146,7 +141,7 @@ async def test_update_user(service: UserService):
     assert user.last_name != update_scheme.last_name
 
     await service.update_user(user.user_id, update_scheme)
-    await service.session.execute(service.query)
+    await service.session.execute(service.queries.pop())
     await service.session.flush()
     updated_user = await get_user_by_username(
         update_scheme.username, service.session
@@ -168,7 +163,7 @@ async def test_delete_user(service: UserService):
     user = await get_user_by_username(scheme.username, service.session)
     assert user.is_active is True
     await service.delete_user(user.user_id)
-    await service.session.execute(service.query)
+    await service.session.execute(service.queries.pop())
     await service.session.flush()
     deleted_user = await get_user_by_username(scheme.username, service.session)
     assert deleted_user.is_active is False

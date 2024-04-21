@@ -1,4 +1,4 @@
-from app.core.settings import USERS_PAGE_LIMIT
+from app.core.constants import USERS_PAGE_LIMIT
 
 
 def get_users_page_limit() -> int:
