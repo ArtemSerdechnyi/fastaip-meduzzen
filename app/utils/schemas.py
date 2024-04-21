@@ -30,3 +30,6 @@ def optionalise_fields(model: Type[BaseModel]):
             for field_name, field_info in model.model_fields.items()
         },
     )
+
+
+# https://dev.to/gyudoza/the-best-practice-of-handling-fastapi-schema-2g3a use it for Omit

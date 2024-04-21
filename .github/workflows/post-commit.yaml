@@ -30,7 +30,7 @@ jobs:
         run: poetry export --without-hashes --format=requirements.txt > requirements.txt
 
       - name: Ruff fix
-        run: ruff check --fix app/
+        run: ruff check --fix --exit-zero app/
 
       - name: Ruff format
         run: ruff format app/

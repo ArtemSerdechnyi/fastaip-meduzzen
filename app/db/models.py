@@ -1,12 +1,13 @@
 import datetime
 import uuid
 
-from sqlalchemy import Boolean, Column, MetaData, String
+from sqlalchemy import Boolean, Column, String
 from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import DeclarativeBase
 
-metadata = MetaData()
-Base = declarative_base(metadata=metadata)
+
+class Base(DeclarativeBase):
+    pass
 
 
 class User(Base):
@@ -17,7 +18,8 @@ class User(Base):
     first_name = Column(String)
     last_name = Column(String)
     registered_at = Column(
-        TIMESTAMP, default=datetime.datetime.now(datetime.timezone.utc)
+        TIMESTAMP(timezone=True),
+        default=lambda: datetime.datetime.now(datetime.timezone.utc),
     )
     email = Column(String, nullable=False, unique=True)
     is_active = Column(Boolean(), default=True, nullable=False)
