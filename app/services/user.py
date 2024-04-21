@@ -1,7 +1,6 @@
 import uuid
 from logging import getLogger
 
-from fastapi import HTTPException
 from passlib.context import CryptContext
 from sqlalchemy import and_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,7 +34,7 @@ class PasswordManager:  # todo mb refactor to async
         return self._hashed_password
 
     def verify_password(
-            self, plain_password: Password, hashed_password: Hash
+        self, plain_password: Password, hashed_password: Hash
     ) -> bool:
         plain_password = str(plain_password)
         return self._pwd_context.verify(plain_password, hashed_password)
@@ -83,7 +82,7 @@ class UserService:
         return UserDetailResponseScheme.from_orm(user)
 
     async def update_user(
-            self, id: uuid.UUID, scheme: UserUpdateRequestScheme
+        self, id: uuid.UUID, scheme: UserUpdateRequestScheme
     ):
         query = (
             update(User)
