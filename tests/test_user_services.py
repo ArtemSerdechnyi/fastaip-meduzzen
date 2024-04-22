@@ -92,11 +92,11 @@ async def get_user_by_id(user_id: str, session: AsyncSession) -> User:
 
 
 def test_password_manager():
-    password = "password123"
+    password = "12345678"
     manager = PasswordManager(password)
     hashed = manager.hash
     assert hashed != password
-    assert manager.verify_password(password, hashed) is True
+    assert manager.verify_password(hashed) is True
 
 
 # Test UserService

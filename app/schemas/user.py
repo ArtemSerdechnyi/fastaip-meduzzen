@@ -1,7 +1,8 @@
 import uuid
 from abc import ABC
 
-from pydantic import BaseModel, ConfigDict, EmailStr, model_validator
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from pydantic import BaseModel, ConfigDict, EmailStr, model_validator, Field
 from typing_extensions import Optional, Self
 
 from app.utils.generics import Name, Password
@@ -10,6 +11,10 @@ from app.utils.schemas import optionalise_fields
 
 class _UserBaseScheme(BaseModel, ABC):
     pass
+
+
+class _UserIDSchemeMixin:
+    user_id: uuid.UUID
 
 
 class _UsernameSchemeMixin:
@@ -33,11 +38,12 @@ class _UserPasswordSchemeMixin:
 
 
 class UserDetailResponseScheme(
-    _UserAllNamesSchemeMixin, _UserEmailSchemeMixin, _UserBaseScheme
+    _UserIDSchemeMixin,
+    _UserAllNamesSchemeMixin,
+    _UserEmailSchemeMixin,
+    _UserBaseScheme,
 ):
     model_config = ConfigDict(from_attributes=True)
-
-    user_id: uuid.UUID
 
 
 class UserSignUpRequestScheme(
@@ -57,8 +63,15 @@ class UserSignUpRequestScheme(
         return self
 
 
-class UserSignInRequestScheme(_UserPasswordSchemeMixin, _UserBaseScheme):
-    email_or_username: EmailStr | Name
+class UserSignInRequestScheme(
+    _UserEmailSchemeMixin, _UserPasswordSchemeMixin, _UserBaseScheme
+):
+    pass
+
+
+class OAuth2PasswordRequestScheme(OAuth2PasswordRequestForm):
+    # username: EmailStr = Field(alias="email")
+    pass
 
 
 @optionalise_fields
@@ -74,3 +87,15 @@ class UsersListResponseScheme(_UserBaseScheme):
     model_config = ConfigDict(from_attributes=True)
 
     users: list[UserDetailResponseScheme]
+
+
+UserOauth2Scheme = OAuth2PasswordBearer(tokenUrl="/user/token")  # todo remove url hardcode
+
+
+class UserTokenScheme(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class UserTokenDataScheme(_UserIDSchemeMixin, BaseModel):
+    pass

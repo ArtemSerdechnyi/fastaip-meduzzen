@@ -1,19 +1,34 @@
 import uuid
+import datetime
 from logging import getLogger
+from typing import NoReturn
 
-from fastapi import HTTPException
+from fastapi import Depends
 from passlib.context import CryptContext
+from pydantic import SecretStr
 from sqlalchemy import and_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from jose import JWTError, jwt
 
+from app.core import constants
 from app.db.models import User
+from app.db.postgres import get_async_session
 from app.schemas.user import (
     UserDetailResponseScheme,
     UserSignUpRequestScheme,
     UsersListResponseScheme,
     UserUpdateRequestScheme,
+    UserSignInRequestScheme,
+    UserTokenScheme,
+    OAuth2PasswordRequestScheme,
+    UserOauth2Scheme,
 )
-from app.utils.generics import Hash, Password
+from app.utils.exceptions.user import (
+    UserNotFoundException,
+    PasswordVerificationError,
+)
+from app.utils.generics import Password
+from app.core.settings import app_settings
 
 logger = getLogger(__name__)
 
@@ -22,23 +37,73 @@ class PasswordManager:  # todo mb refactor to async
     _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     _hashed_password = None
 
-    def __init__(self, password: Password | str):
-        self.password = str(password)
+    def __init__(self, password: str | Password):
+        if isinstance(password, SecretStr):
+            self.password = str(password.get_secret_value())
+        self.password = password
 
-    def _get_hash(self, var: Password | str) -> Hash:
-        return self._pwd_context.hash(str(var))
+    def _get_hash(self, var: str) -> str:
+        return self._pwd_context.hash(var)
 
     @property
-    def hash(self) -> Hash:
-        if not self._hashed_password:
+    def hash(self) -> str:
+        if self._hashed_password is None:
             self._hashed_password = self._get_hash(self.password)
         return self._hashed_password
 
-    def verify_password(
-            self, plain_password: Password, hashed_password: Hash
-    ) -> bool:
-        plain_password = str(plain_password)
-        return self._pwd_context.verify(plain_password, hashed_password)
+    def verify_password(self, hashed_password: str) -> bool:
+        return self._pwd_context.verify(self.password, hashed_password)
+
+
+class JWTService:
+    @staticmethod
+    def get_expires_delta() -> datetime.timedelta:
+        return datetime.timedelta(
+            minutes=constants.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+
+    @staticmethod
+    def get_user_id_from_token(token: str) -> str:
+        payload = jwt.decode(
+            token, app_settings.SECRET_KEY, algorithms=[constants.ALGORITHM]
+        )
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise JWTError
+        return user_id
+
+    @classmethod
+    def create_access_token(cls, data: dict) -> str:
+        expires_delta = cls.get_expires_delta()
+        to_encode = data.copy()
+        # expire = datetime.datetime.now(datetime.timezone.utc) + expires_delta
+        if expires_delta:
+            expire = (
+                    datetime.datetime.now(datetime.timezone.utc) + expires_delta
+            )
+        else:
+            expire = datetime.datetime.now(
+                datetime.timezone.utc
+            ) + datetime.timedelta(
+                minutes=constants.ACCESS_TOKEN_EXPIRE_MINUTES
+            )
+        to_encode.update({"exp": expire})
+        encoded_jwt = jwt.encode(
+            to_encode, app_settings.SECRET_KEY, algorithm=constants.ALGORITHM
+        )
+        return encoded_jwt
+
+    @classmethod
+    async def get_current_user_from_token(
+            cls,
+            token: str = Depends(UserOauth2Scheme),
+            db: AsyncSession = Depends(get_async_session),
+    ) -> UserDetailResponseScheme:
+        print(cls)
+        async with UserService(db) as service:
+            user_id = cls.get_user_id_from_token(token)
+            user = service.get_user_by_attributes(user_id=user_id)
+            return UserDetailResponseScheme.from_orm(user)
 
 
 class UserService:
@@ -63,24 +128,51 @@ class UserService:
         else:
             await self.session.rollback()
             logger.error(f"Error occurred {exc_type}, {exc_val}, {exc_tb}")
-            raise exc_type
-        return False  # mb True?
+        return False
+
+    @staticmethod
+    def verify_user_password(
+            user: User,
+            password: Password | str,
+    ) -> NoReturn | None:
+        hashed_password = user.hashed_password
+        if PasswordManager(password).verify_password(hashed_password) is False:
+            raise PasswordVerificationError(user=user)
 
     async def add_query(self, query):
         self._queries.append(query)
 
+    async def get_user_by_attributes(
+            self,
+            is_active=True,
+            **kwargs,
+    ) -> User:
+        kwargs.update(is_active=is_active)
+
+        query = select(User).where(
+            and_(
+                *(
+                    getattr(User, attr) == value
+                    for attr, value in kwargs.items()
+                )
+            )
+        )
+        result = await self.session.execute(query)
+        user = result.scalar()
+        if not user:
+            raise UserNotFoundException(**kwargs)
+        return user
+
     async def create_user(self, scheme: UserSignUpRequestScheme):
-        password_hash = PasswordManager(scheme.password).hash
+        password_hash = PasswordManager(
+            str(scheme.password.get_secret_value())
+        ).hash
         new_user = User(
             email=scheme.email,
             username=scheme.username,
             hashed_password=password_hash,
         )
         self.session.add(new_user)
-
-    async def get_user_by_id(self, id: uuid.UUID) -> UserDetailResponseScheme:
-        user = await self.session.get_one(User, id)
-        return UserDetailResponseScheme.from_orm(user)
 
     async def update_user(
             self, id: uuid.UUID, scheme: UserUpdateRequestScheme
@@ -118,3 +210,19 @@ class UserService:
         raw_users = result.scalars().all()
         users = [UserDetailResponseScheme.from_orm(user) for user in raw_users]
         return UsersListResponseScheme(users=users)
+
+    async def user_authentication_check(
+            self, scheme: OAuth2PasswordRequestScheme
+    ) -> User | NoReturn:
+        user = await self.get_user_by_attributes(email=scheme.username)
+        self.verify_user_password(user, scheme.password)
+        return user
+
+    async def get_access_token(
+            self, scheme: OAuth2PasswordRequestScheme
+    ) -> UserTokenScheme: # todo mb remove to JWTService
+        user: User = await self.user_authentication_check(scheme)
+        token = JWTService.create_access_token(
+            data={"sub": str(user.user_id)}
+        )
+        return UserTokenScheme(access_token=token, token_type="bearer")

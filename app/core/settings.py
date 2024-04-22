@@ -6,6 +6,7 @@ class _AppSettings(BaseSettings):
     HOST: str = "localhost"
     PORT: int = 8000
     RELOAD: bool = False
+    SECRET_KEY: str = "secret_key"
 
     class Config:
         env_file = ".env"

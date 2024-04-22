@@ -1,16 +1,23 @@
 import uuid
+from datetime import timedelta
 
 from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import status, HTTPException
 
+from app.core import constants
 from app.db.postgres import get_async_session
 from app.schemas.user import (
     UserDetailResponseScheme,
     UserSignUpRequestScheme,
     UsersListResponseScheme,
     UserUpdateRequestScheme,
+    UserTokenScheme,
+    OAuth2PasswordRequestScheme,
+    UserOauth2Scheme,
 )
-from app.services.user import UserService
+from app.services.user import UserService, JWTService
 from app.utils.user import get_users_page_limit
 
 user_router = APIRouter()
@@ -23,7 +30,7 @@ async def create_new_user(
 ):
     async with UserService(db) as service:
         await service.create_user(body)
-    return {"status_code": 200, "detail": "User created"}
+    return {"status_code": 201, "detail": "User created"}
 
 
 @user_router.get("/{user_id}", response_model=UserDetailResponseScheme)
@@ -31,7 +38,7 @@ async def get_user(
     user_id: uuid.UUID, db: AsyncSession = Depends(get_async_session)
 ):
     async with UserService(db) as service:
-        user = await service.get_user_by_id(user_id)
+        user = await service.get_user_by_attributes(user_id=user_id)
     return user
 
 
@@ -53,7 +60,7 @@ async def delete_user(
 ):
     async with UserService(db) as service:
         await service.delete_user(user_id)
-    return {"status_code": 200, "detail": "User deleted"}
+    return {"status_code": 204, "detail": "User deleted"}
 
 
 @user_router.get("/all/{page}", response_model=UsersListResponseScheme)
@@ -65,3 +72,22 @@ async def get_all_users(
     async with UserService(db) as service:
         user_list = await service.get_all_users(page, limit)
     return user_list
+
+
+@user_router.post("/token", response_model=UserTokenScheme)
+async def login_for_access_token(
+    body: OAuth2PasswordRequestScheme = Depends(),
+    db: AsyncSession = Depends(get_async_session),
+):
+    async with UserService(db) as service:
+        token = await service.get_access_token(body)
+    return token
+
+
+@user_router.get("/me", response_model=UserDetailResponseScheme)
+async def get_current_user(
+    current_user: UserDetailResponseScheme = Depends(
+        JWTService().get_current_user_from_token
+    ),
+):
+    return current_user
