@@ -97,7 +97,3 @@ UserOauth2Scheme = OAuth2PasswordBearer(
 class UserTokenScheme(BaseModel):
     access_token: str
     token_type: str
-
-
-class UserTokenDataScheme(_UserIDSchemeMixin, BaseModel):
-    pass

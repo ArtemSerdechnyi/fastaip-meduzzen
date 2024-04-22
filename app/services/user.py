@@ -1,7 +1,6 @@
 import datetime
 import uuid
-from logging import getLogger
-from typing import NoReturn
+from typing import NoReturn, Annotated
 
 from fastapi import Depends
 from jose import JWTError, jwt
@@ -29,7 +28,6 @@ from app.utils.exceptions.user import (
 )
 from app.utils.generics import Password
 
-logger = getLogger(__name__)
 
 
 class PasswordManager:  # todo mb refactor to async
@@ -94,12 +92,12 @@ class JWTService:
     @classmethod
     async def get_current_user_from_token(
         cls,
-        token: str = Depends(UserOauth2Scheme),
+        token: Annotated[str, Depends(UserOauth2Scheme)],
         db: AsyncSession = Depends(get_async_session),
     ) -> UserDetailResponseScheme:
         async with UserService(db) as service:
             user_id = cls.get_user_id_from_token(token)
-            user = service.get_user_by_attributes(user_id=user_id)
+            user = await service.get_user_by_attributes(user_id=user_id)
             return UserDetailResponseScheme.from_orm(user)
 
 
