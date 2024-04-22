@@ -20,6 +20,7 @@ from app.utils.user import get_users_page_limit
 user_router = APIRouter()
 logging.basicConfig(level=logging.DEBUG)
 
+
 @user_router.post("/")
 async def create_new_user(
     body: UserSignUpRequestScheme,
@@ -83,6 +84,9 @@ async def login_for_access_token(
 
 @user_router.post("/me", response_model=UserDetailResponseScheme)
 async def get_current_user(
-    current_user: Annotated[UserDetailResponseScheme, Depends(JWTService.get_current_user_from_token)]
+    current_user: Annotated[
+        UserDetailResponseScheme,
+        Depends(JWTService.get_current_user_from_token),
+    ],
 ):
     return current_user

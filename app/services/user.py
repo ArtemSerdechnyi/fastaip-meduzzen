@@ -1,6 +1,6 @@
 import datetime
 import uuid
-from typing import NoReturn, Annotated
+from typing import Annotated, NoReturn
 
 from fastapi import Depends
 from jose import JWTError, jwt
@@ -27,7 +27,6 @@ from app.utils.exceptions.user import (
     UserNotFoundException,
 )
 from app.utils.generics import Password
-
 
 
 class PasswordManager:  # todo mb refactor to async
