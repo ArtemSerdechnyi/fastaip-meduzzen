@@ -1,23 +1,18 @@
 import uuid
-from datetime import timedelta
 
 from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import status, HTTPException
 
-from app.core import constants
 from app.db.postgres import get_async_session
 from app.schemas.user import (
+    OAuth2PasswordRequestScheme,
     UserDetailResponseScheme,
     UserSignUpRequestScheme,
     UsersListResponseScheme,
-    UserUpdateRequestScheme,
     UserTokenScheme,
-    OAuth2PasswordRequestScheme,
-    UserOauth2Scheme,
+    UserUpdateRequestScheme,
 )
-from app.services.user import UserService, JWTService
+from app.services.user import JWTService, UserService
 from app.utils.user import get_users_page_limit
 
 user_router = APIRouter()

@@ -1,8 +1,8 @@
 import uuid
 from abc import ABC
 
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from pydantic import BaseModel, ConfigDict, EmailStr, model_validator, Field
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel, ConfigDict, EmailStr, model_validator
 from typing_extensions import Optional, Self
 
 from app.utils.generics import Name, Password
@@ -89,7 +89,9 @@ class UsersListResponseScheme(_UserBaseScheme):
     users: list[UserDetailResponseScheme]
 
 
-UserOauth2Scheme = OAuth2PasswordBearer(tokenUrl="/user/token")  # todo remove url hardcode
+UserOauth2Scheme = OAuth2PasswordBearer(
+    tokenUrl="/user/token"
+)  # todo remove url hardcode
 
 
 class UserTokenScheme(BaseModel):
