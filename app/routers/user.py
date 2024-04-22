@@ -87,7 +87,7 @@ async def login_for_access_token(
 @user_router.get("/me", response_model=UserDetailResponseScheme)
 async def get_current_user(
     current_user: UserDetailResponseScheme = Depends(
-        JWTService().get_current_user_from_token
+        JWTService.get_current_user_from_token
     ),
 ):
     return current_user
