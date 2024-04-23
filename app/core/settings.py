@@ -70,6 +70,7 @@ redis_conf = _RedisConfig()
 
 # AUTH0
 
+
 class Auth0(BaseSettings):
     auth0_domain: str
     auth0_api_audience: str
