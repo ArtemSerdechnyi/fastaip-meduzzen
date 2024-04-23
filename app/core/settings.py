@@ -66,3 +66,20 @@ class _RedisConfig(BaseSettings):
 
 
 redis_conf = _RedisConfig()
+
+
+# AUTH0
+
+class Auth0(BaseSettings):
+    auth0_domain: str
+    auth0_api_audience: str
+    auth0_issuer: str
+    auth0_algorithms: str
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+        extra = "ignore"
+
+
+auth0_config = Auth0()

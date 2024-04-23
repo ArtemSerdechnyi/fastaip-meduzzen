@@ -2,7 +2,7 @@ import uuid
 from abc import ABC
 
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from pydantic import BaseModel, ConfigDict, EmailStr, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, model_validator, Field
 from typing_extensions import Optional, Self
 
 from app.utils.generics import Name, Password
@@ -71,6 +71,13 @@ class UserSignInRequestScheme(
 
 class OAuth2PasswordRequestScheme(OAuth2PasswordRequestForm):
     # username: EmailStr = Field(alias="email")
+    pass
+
+
+class Auth0UserScheme(
+    _UserEmailSchemeMixin,
+    _UserBaseScheme
+):
     pass
 
 

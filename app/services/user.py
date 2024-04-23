@@ -1,16 +1,20 @@
 import datetime
 import uuid
+from logging import getLogger
 from typing import Annotated, NoReturn
 
+from asyncpg import UniqueViolationError
 from fastapi import Depends
+from fastapi_auth0 import Auth0, Auth0User
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import SecretStr
-from sqlalchemy import and_, select, update
+from sqlalchemy import and_, select, update, insert
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import constants
-from app.core.settings import app_settings
+from app.core.settings import app_settings, auth0_config
 from app.db.models import User
 from app.db.postgres import get_async_session
 from app.schemas.user import (
@@ -20,13 +24,15 @@ from app.schemas.user import (
     UserSignUpRequestScheme,
     UsersListResponseScheme,
     UserTokenScheme,
-    UserUpdateRequestScheme,
+    UserUpdateRequestScheme, Auth0UserScheme,
 )
 from app.utils.exceptions.user import (
     PasswordVerificationError,
     UserNotFoundException,
 )
 from app.utils.generics import Password
+
+logger = getLogger(__name__)
 
 
 class PasswordManager:  # todo mb refactor to async
@@ -74,7 +80,7 @@ class JWTService:
         to_encode = data.copy()
         if expires_delta:
             expire = (
-                datetime.datetime.now(datetime.timezone.utc) + expires_delta
+                    datetime.datetime.now(datetime.timezone.utc) + expires_delta
             )
         else:
             expire = datetime.datetime.now(
@@ -90,14 +96,26 @@ class JWTService:
 
     @classmethod
     async def get_current_user_from_token(
-        cls,
-        token: Annotated[str, Depends(UserOauth2Scheme)],
-        db: AsyncSession = Depends(get_async_session),
+            cls,
+            token: Annotated[str, Depends(UserOauth2Scheme)],
+            db: AsyncSession = Depends(get_async_session),
     ) -> UserDetailResponseScheme:
         async with UserService(db) as service:
             user_id = cls.get_user_id_from_token(token)
             user = await service.get_user_by_attributes(user_id=user_id)
             return UserDetailResponseScheme.from_orm(user)
+
+
+class Auth0Service:
+    auth = Auth0(
+        domain=auth0_config.auth0_domain,
+        api_audience=auth0_config.auth0_api_audience
+    )  # add scopes={} if need
+
+    @staticmethod
+    async def get_user_scheme_from_auth0(user: Auth0User = Depends(auth.get_user)) -> Auth0UserScheme:
+        scheme = Auth0UserScheme(email=user.email)
+        return scheme
 
 
 class UserService:
@@ -127,8 +145,8 @@ class UserService:
 
     @staticmethod
     def verify_user_password(
-        user: User,
-        password: Password | str,
+            user: User,
+            password: Password | str,
     ) -> NoReturn | None:
         hashed_password = user.hashed_password
         if PasswordManager(password).verify_password(hashed_password) is False:
@@ -144,9 +162,9 @@ class UserService:
         self._queries.append(query)
 
     async def get_user_by_attributes(
-        self,
-        is_active=True,
-        **kwargs,
+            self,
+            is_active=True,
+            **kwargs,
     ) -> User:
         kwargs.update(is_active=is_active)
 
@@ -176,7 +194,7 @@ class UserService:
         self.session.add(new_user)
 
     async def update_user(
-        self, id: uuid.UUID, scheme: UserUpdateRequestScheme
+            self, id: uuid.UUID, scheme: UserUpdateRequestScheme
     ):
         query = (
             update(User)
@@ -213,15 +231,26 @@ class UserService:
         return UsersListResponseScheme(users=users)
 
     async def user_authentication_check(
-        self, scheme: OAuth2PasswordRequestScheme
+            self, scheme: OAuth2PasswordRequestScheme
     ) -> User | NoReturn:
         user = await self.get_user_by_attributes(email=scheme.username)
         self.verify_user_password(user, scheme.password)
         return user
 
     async def get_access_token(
-        self, scheme: OAuth2PasswordRequestScheme
+            self, scheme: OAuth2PasswordRequestScheme
     ) -> UserTokenScheme:  # todo move to JWRService
         user: User = await self.user_authentication_check(scheme)
         token = JWTService.create_access_token(data={"sub": str(user.user_id)})
         return UserTokenScheme(access_token=token, token_type="bearer")
+
+    async def register_auth0_user(self, scheme: Auth0UserScheme) -> None:
+        query = (
+            insert(User)
+            .values(email=scheme.email)
+            .returning(User.user_id)
+        )
+        try:
+            await self.session.execute(query)
+        except IntegrityError as e:
+            pass
