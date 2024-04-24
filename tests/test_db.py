@@ -1,8 +1,8 @@
-import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.postgres import get_async_session
+
 from .conftest import override_get_async_session
 
 

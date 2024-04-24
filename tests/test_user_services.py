@@ -1,24 +1,21 @@
-import pytest
-from uuid import uuid4
 
-from fastapi_auth0 import Auth0User
-from sqlalchemy import select, func
+import pytest
+from sqlalchemy import func, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.services.user import (
-    PasswordManager,
-    UserService,
-    JWTService,
-    Auth0Service,
-)
 from app.db.models import User
 from app.schemas.user import (
+    Auth0UserScheme,
+    OAuth2PasswordRequestScheme,
     UserSignUpRequestScheme,
     UserUpdateRequestScheme,
-    UserDetailResponseScheme,
-    OAuth2PasswordRequestScheme,
-    Auth0UserScheme,
+)
+from app.services.user import (
+    Auth0Service,
+    JWTService,
+    PasswordManager,
+    UserService,
 )
 from app.utils.exceptions.user import UserNotFoundException
 

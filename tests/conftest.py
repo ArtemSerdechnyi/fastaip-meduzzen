@@ -7,14 +7,14 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
-    create_async_engine,
     async_sessionmaker,
+    create_async_engine,
 )
 
-from app.main import app as _app
-from app.db.postgres import get_async_session
 from app.core.settings import postgres_config_test as conf
 from app.db.models import Base
+from app.db.postgres import get_async_session
+from app.main import app as _app
 
 DATABASE_URL_TEST = (
     f"postgresql+asyncpg://{conf.POSTGRES_USER_TEST}:{conf.POSTGRES_PASSWORD_TEST}@"
