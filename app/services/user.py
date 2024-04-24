@@ -249,8 +249,7 @@ class UserService:
 
     async def register_auth0_user(self, scheme: Auth0UserScheme) -> None:
         query = (
-            insert(User)
-            .values(email=scheme.email)
+            insert(User).values(email=scheme.email)
             # .returning(User.user_id)
         )
         try:

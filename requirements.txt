@@ -8,6 +8,7 @@ certifi==2024.2.2 ; python_version >= "3.12" and python_version < "4.0"
 cffi==1.16.0 ; python_version >= "3.12" and python_version < "4.0" and (os_name == "nt" or platform_python_implementation != "PyPy") and (implementation_name != "pypy" or platform_python_implementation != "PyPy")
 click==8.1.7 ; python_version >= "3.12" and python_version < "4.0"
 colorama==0.4.6 ; python_version >= "3.12" and python_version < "4.0" and (sys_platform == "win32" or platform_system == "Windows")
+coverage==7.5.0 ; python_version >= "3.12" and python_version < "4.0"
 cryptography==42.0.5 ; python_version >= "3.12" and python_version < "4.0"
 dnspython==2.6.1 ; python_version >= "3.12" and python_version < "4.0"
 ecdsa==0.19.0 ; python_version >= "3.12" and python_version < "4.0"
