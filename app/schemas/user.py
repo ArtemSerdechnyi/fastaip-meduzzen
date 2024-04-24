@@ -94,8 +94,8 @@ class UsersListResponseScheme(_UserBaseScheme):
 
 
 UserOauth2Scheme = OAuth2PasswordBearer(
-    tokenUrl="/user/token"
-)  # todo remove url hardcode
+    tokenUrl="/user/gwt/token"  # todo remove url hardcode
+)
 
 
 class UserTokenScheme(BaseModel):

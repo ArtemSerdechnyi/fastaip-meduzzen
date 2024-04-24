@@ -42,7 +42,8 @@ class PasswordManager:  # todo mb refactor to async
     def __init__(self, password: str | Password):
         if isinstance(password, SecretStr):
             self.password = str(password.get_secret_value())
-        self.password = password
+        else:
+            self.password = password
 
     def _get_hash(self, var: str) -> str:
         return self._pwd_context.hash(var)
@@ -121,7 +122,7 @@ class Auth0Service:
 
 
 class UserService:
-    def __init__(self, session: AsyncSession):  # todo refactor to async
+    def __init__(self, session: AsyncSession):
         self.session = session
         self._queries = []
 
@@ -160,7 +161,7 @@ class UserService:
             raise UserNotFoundException(email=email)
         return user
 
-    async def add_query(self, query):
+    async def _add_query(self, query):
         self._queries.append(query)
 
     async def get_user_by_attributes(
@@ -204,7 +205,7 @@ class UserService:
             .values(scheme.dict(exclude_unset=True))
             .returning(User.user_id)
         )
-        await self.add_query(query)
+        await self._add_query(query)
 
     async def delete_user(self, id: uuid.UUID):
         query = (
@@ -212,7 +213,7 @@ class UserService:
             .where(and_(User.user_id == id, User.is_active == True))
             .values(is_active=False)
         )
-        await self.add_query(query)
+        await self._add_query(query)
 
     async def get_all_users(self, page, limit) -> UsersListResponseScheme:
         if page < 1:
@@ -247,8 +248,12 @@ class UserService:
         return UserTokenScheme(access_token=token, token_type="bearer")
 
     async def register_auth0_user(self, scheme: Auth0UserScheme) -> None:
-        query = insert(User).values(email=scheme.email).returning(User.user_id)
+        query = (
+            insert(User)
+            .values(email=scheme.email)
+            # .returning(User.user_id)
+        )
         try:
             await self.session.execute(query)
         except IntegrityError:
-            pass
+            await self.session.rollback()
