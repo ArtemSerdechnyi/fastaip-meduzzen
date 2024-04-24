@@ -84,7 +84,7 @@ async def login_for_access_token(
     return token
 
 
-@gwt_router.post(
+@gwt_router.get(
     "/me", response_model=UserDetailResponseScheme
 )  # todo refactor to GET!!!
 async def get_current_user(
