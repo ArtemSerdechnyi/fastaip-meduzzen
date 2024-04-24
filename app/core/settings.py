@@ -71,11 +71,12 @@ redis_conf = _RedisConfig()
 # AUTH0
 
 
-class Auth0(BaseSettings):
-    auth0_domain: str
-    auth0_api_audience: str
-    auth0_issuer: str
-    auth0_algorithms: str
+class _Auth0Config(BaseSettings):
+    AUTH0_CLIENT_ID: str
+    AUTH0_DOMAIN: str
+    AUTH0_API_AUDIENCE: str
+    AUTH0_ISSUER: str
+    AUTH0_ALGORITHMS: str
 
     class Config:
         env_file = ".env"
@@ -83,4 +84,4 @@ class Auth0(BaseSettings):
         extra = "ignore"
 
 
-auth0_config = Auth0()
+auth0_config = _Auth0Config()

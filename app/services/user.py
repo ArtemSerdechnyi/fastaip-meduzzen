@@ -109,8 +109,8 @@ class JWTService:
 
 class Auth0Service:
     auth = Auth0(
-        domain=auth0_config.auth0_domain,
-        api_audience=auth0_config.auth0_api_audience,
+        domain=auth0_config.AUTH0_DOMAIN,
+        api_audience=auth0_config.AUTH0_API_AUDIENCE,
     )  # add scopes={} if need
 
     @staticmethod
