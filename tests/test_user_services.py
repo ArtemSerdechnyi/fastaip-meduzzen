@@ -1,4 +1,3 @@
-
 import pytest
 from sqlalchemy import func, select
 from sqlalchemy.exc import NoResultFound
@@ -6,10 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User
 from app.schemas.user import (
-    Auth0UserScheme,
-    OAuth2PasswordRequestScheme,
     UserSignUpRequestScheme,
-    UserUpdateRequestScheme,
+    UserUpdateRequestScheme, OAuth2RequestFormScheme, Auth0UserScheme,
 )
 from app.services.user import (
     Auth0Service,
@@ -81,7 +78,7 @@ user_list: list[UserSignUpRequestScheme] = [
     ),
 ]
 
-oauth2password_requests_cheme = OAuth2PasswordRequestScheme(
+oauth2password_requests_cheme = OAuth2RequestFormScheme(
     username=str(user1_scheme.email),
     password=user1_scheme.password.get_secret_value(),
 )
@@ -127,7 +124,7 @@ async def test_create_user(service: UserService):
     scheme = user1_scheme
     with pytest.raises(NoResultFound):
         await get_user_by_username(scheme.username, service.session)
-    await service.create_user(scheme)
+    await service.create_default_user(scheme)
     await service.session.flush()
     user = await get_user_by_username(scheme.username, service.session)
     assert isinstance(user, User)
@@ -164,7 +161,7 @@ async def test_verify_user_by_email(service: UserService):
 async def test_update_user(service: UserService):
     scheme = user2_scheme_for_update
     update_scheme = user_update_scheme
-    await service.create_user(scheme)
+    await service.create_default_user(scheme)
     user = await get_user_by_username(scheme.username, service.session)
     assert user.email != update_scheme.email
     assert user.username != update_scheme.username
@@ -235,7 +232,7 @@ async def test_get_all_users(service: UserService):
 async def test_user_get_access_token(service: UserService):
     scheme = oauth2password_requests_cheme
     token_scheme = await service.get_access_token(scheme=scheme)
-    user_id = JWTService.get_user_id_from_token(token_scheme.access_token)
+    user_id = JWTService.get_user_email_from_token(token_scheme.access_token)
     user = await get_user_by_id(user_id, service.session)
     assert user.email == scheme.username
 
@@ -243,7 +240,7 @@ async def test_user_get_access_token(service: UserService):
 async def test_get_user_id_from_token(service: UserService):
     scheme = oauth2password_requests_cheme
     token_scheme = await service.get_access_token(scheme=scheme)
-    user_id = JWTService.get_user_id_from_token(token_scheme.access_token)
+    user_id = JWTService.get_user_email_from_token(token_scheme.access_token)
     user = await get_user_by_id(user_id, service.session)
     assert user.email == scheme.username
 

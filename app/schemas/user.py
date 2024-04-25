@@ -1,7 +1,7 @@
 import uuid
 from abc import ABC
 
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import HTTPBearer
 from pydantic import BaseModel, ConfigDict, EmailStr, model_validator
 from typing_extensions import Optional, Self
 
@@ -37,6 +37,7 @@ class _UserPasswordSchemeMixin:
 # using schemas
 
 
+@optionalise_fields
 class UserDetailResponseScheme(
     _UserIDSchemeMixin,
     _UserAllNamesSchemeMixin,
@@ -69,15 +70,6 @@ class UserSignInRequestScheme(
     pass
 
 
-class OAuth2PasswordRequestScheme(OAuth2PasswordRequestForm):
-    # username: EmailStr = Field(alias="email")
-    pass
-
-
-class Auth0UserScheme(_UserEmailSchemeMixin, _UserBaseScheme):
-    pass
-
-
 @optionalise_fields
 class UserUpdateRequestScheme(
     _UserAllNamesSchemeMixin,
@@ -93,9 +85,22 @@ class UsersListResponseScheme(_UserBaseScheme):
     users: list[UserDetailResponseScheme]
 
 
-UserOauth2Scheme = OAuth2PasswordBearer(
-    tokenUrl="/user/gwt/token"  # todo remove url hardcode
-)
+class TokenUserDataScheme(_UserEmailSchemeMixin, BaseModel):
+    pass
+
+
+class OAuth2RequestFormScheme:
+    def __init__(self, email: EmailStr, password: Password):
+        self.email = email
+        self.password = password
+
+
+class Auth0UserScheme(_UserEmailSchemeMixin, _UserBaseScheme):
+    pass
+
+
+class UserHTTPBearer(HTTPBearer):
+    pass
 
 
 class UserTokenScheme(BaseModel):

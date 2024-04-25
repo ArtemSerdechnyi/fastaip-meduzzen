@@ -68,6 +68,22 @@ class _RedisConfig(BaseSettings):
 redis_conf = _RedisConfig()
 
 
+# GWT
+
+class _GWTConfig(BaseSettings):
+    GWT_ALGORITHMS: str
+    GWT_ACCESS_TOKEN_EXPIRE_MINUTES: int
+    GWT_SECRET_KEY: str
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+        extra = "ignore"
+
+
+gwt_config = _GWTConfig()
+
+
 # AUTH0
 
 
@@ -75,7 +91,7 @@ class _Auth0Config(BaseSettings):
     AUTH0_CLIENT_ID: str
     AUTH0_DOMAIN: str
     AUTH0_API_AUDIENCE: str
-    AUTH0_ISSUER: str
+    AUTH0_API_SECRET: str
     AUTH0_ALGORITHMS: str
 
     class Config:
