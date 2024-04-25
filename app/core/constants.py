@@ -1,2 +1,1 @@
-
 USERS_PAGE_LIMIT: int = 10

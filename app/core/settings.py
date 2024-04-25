@@ -70,6 +70,7 @@ redis_conf = _RedisConfig()
 
 # GWT
 
+
 class _GWTConfig(BaseSettings):
     GWT_ALGORITHMS: str
     GWT_ACCESS_TOKEN_EXPIRE_MINUTES: int

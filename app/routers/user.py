@@ -1,32 +1,22 @@
-import json
 import uuid
-from typing import Annotated, Union
-from urllib.request import urlopen
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, Security, HTTPException, status
-from fastapi.security import (
-    OAuth2AuthorizationCodeBearer,
-    HTTPBearer,
-    HTTPAuthorizationCredentials,
-)
-from jose import jwt, JWTError
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.status import HTTP_401_UNAUTHORIZED
 
-from app.core.settings import auth0_config
 from app.db.models import User
 from app.db.postgres import get_async_session
 from app.schemas.user import (
+    OAuth2RequestFormScheme,
     UserDetailResponseScheme,
     UserSignUpRequestScheme,
+    UsersListResponseScheme,
     UserUpdateRequestScheme,
-    UsersListResponseScheme, OAuth2RequestFormScheme, Auth0UserScheme, UserHTTPBearer, UserTokenScheme,
 )
 from app.services.user import (
-    Auth0Service,
+    GenericAuthService,
     JWTService,
     UserService,
-    GenericAuthService,
 )
 from app.utils.user import get_users_page_limit
 
@@ -35,7 +25,7 @@ user_router = APIRouter()
 
 @user_router.get("/example_both_token_autn")
 async def example_both_token_autn(
-        user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
+    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
 ):
     user = UserDetailResponseScheme.from_orm(user)
     return user
@@ -43,7 +33,7 @@ async def example_both_token_autn(
 
 @user_router.post("/token")
 async def get_user_token(
-        body: OAuth2RequestFormScheme = Depends(),
+    body: OAuth2RequestFormScheme = Depends(),
 ):
     token = JWTService.create_access_token(data={"email": str(body.email)})
     return token
@@ -51,8 +41,8 @@ async def get_user_token(
 
 @user_router.post("/")
 async def create_new_user(
-        body: UserSignUpRequestScheme,
-        db: AsyncSession = Depends(get_async_session),
+    body: UserSignUpRequestScheme,
+    db: AsyncSession = Depends(get_async_session),
 ):
     async with UserService(db) as service:
         await service.create_default_user(body)
@@ -61,7 +51,7 @@ async def create_new_user(
 
 @user_router.get("/{user_id}", response_model=UserDetailResponseScheme)
 async def get_user(
-        user_id: uuid.UUID, db: AsyncSession = Depends(get_async_session)
+    user_id: uuid.UUID, db: AsyncSession = Depends(get_async_session)
 ):
     async with UserService(db) as service:
         user = await service.get_user_by_attributes(user_id=user_id)
@@ -70,9 +60,9 @@ async def get_user(
 
 @user_router.patch("/{user_id}")
 async def update_user(
-        user_id: uuid.UUID,
-        body: UserUpdateRequestScheme,
-        db: AsyncSession = Depends(get_async_session),
+    user_id: uuid.UUID,
+    body: UserUpdateRequestScheme,
+    db: AsyncSession = Depends(get_async_session),
 ):
     async with UserService(db) as service:
         await service.update_user(user_id, body)
@@ -81,8 +71,8 @@ async def update_user(
 
 @user_router.delete("/{user_id}")
 async def delete_user(
-        user_id: uuid.UUID,
-        db: AsyncSession = Depends(get_async_session),
+    user_id: uuid.UUID,
+    db: AsyncSession = Depends(get_async_session),
 ):
     async with UserService(db) as service:
         await service.delete_user(user_id)
@@ -91,9 +81,9 @@ async def delete_user(
 
 @user_router.get("/all/{page}", response_model=UsersListResponseScheme)
 async def get_all_users(
-        page: int,
-        db: AsyncSession = Depends(get_async_session),
-        limit: int = Depends(get_users_page_limit),
+    page: int,
+    db: AsyncSession = Depends(get_async_session),
+    limit: int = Depends(get_users_page_limit),
 ):
     async with UserService(db) as service:
         user_list = await service.get_all_users(page, limit)

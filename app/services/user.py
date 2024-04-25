@@ -1,33 +1,31 @@
 import datetime
 import uuid
 from logging import getLogger
-from typing import Annotated, NoReturn
+from typing import NoReturn
 
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials
-
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import SecretStr
 from sqlalchemy import and_, insert, select, update
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core import constants
 from app.core.settings import app_settings, auth0_config, gwt_config
 from app.db.models import User
 from app.db.postgres import get_async_session
 from app.schemas.user import (
+    TokenUserDataScheme,
     UserDetailResponseScheme,
+    UserHTTPBearer,
     UserSignUpRequestScheme,
-    UserUpdateRequestScheme,
     UsersListResponseScheme,
-    TokenUserDataScheme, OAuth2RequestFormScheme, Auth0UserScheme, UserHTTPBearer, UserTokenScheme,
+    UserUpdateRequestScheme,
 )
 from app.utils.exceptions.user import (
+    DecodeUserTokenError,
     PasswordVerificationError,
     UserNotFoundException,
-    DecodeUserTokenError,
 )
 from app.utils.generics import Password
 
@@ -58,7 +56,6 @@ class PasswordManager:  # todo mb refactor to async
 
 
 class JWTService:
-
     @staticmethod
     def get_expires_delta() -> datetime.timedelta:
         return datetime.timedelta(
@@ -71,7 +68,7 @@ class JWTService:
         to_encode = data.copy()
         if expires_delta:
             expire = (
-                    datetime.datetime.now(datetime.timezone.utc) + expires_delta
+                datetime.datetime.now(datetime.timezone.utc) + expires_delta
             )
         else:
             expire = datetime.datetime.now(
@@ -81,14 +78,16 @@ class JWTService:
             )
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(
-            to_encode, app_settings.SECRET_KEY, algorithm=gwt_config.GWT_ALGORITHMS
+            to_encode,
+            app_settings.SECRET_KEY,
+            algorithm=gwt_config.GWT_ALGORITHMS,
         )
         return encoded_jwt
 
     @classmethod
     def decode_token(
-            cls,
-            token: str,
+        cls,
+        token: str,
     ) -> TokenUserDataScheme:
         try:
             payload = jwt.decode(
@@ -104,11 +103,10 @@ class JWTService:
 
 
 class Auth0Service:
-
     @classmethod
     def decode_token(
-            cls,
-            token: str,
+        cls,
+        token: str,
     ) -> TokenUserDataScheme:
         try:
             payload = jwt.decode(
@@ -127,9 +125,9 @@ class Auth0Service:
 class GenericAuthService:
     @classmethod
     async def get_user_from_any_token(
-            cls,
-            credentials: HTTPAuthorizationCredentials = Depends(UserHTTPBearer()),
-            db: AsyncSession = Depends(get_async_session),
+        cls,
+        credentials: HTTPAuthorizationCredentials = Depends(UserHTTPBearer()),
+        db: AsyncSession = Depends(get_async_session),
     ) -> User:
         token = credentials.credentials
         async with UserService(db) as service:
@@ -174,8 +172,8 @@ class UserService:
 
     @staticmethod
     def verify_user_password(
-            user: User,
-            password: Password | str,
+        user: User,
+        password: Password | str,
     ) -> NoReturn | None:
         hashed_password = user.hashed_password
         if PasswordManager(password).verify_password(hashed_password) is False:
@@ -191,9 +189,9 @@ class UserService:
         self._queries.append(query)
 
     async def get_user_by_attributes(
-            self,
-            is_active=True,
-            **kwargs,
+        self,
+        is_active=True,
+        **kwargs,
     ) -> User:
         kwargs.update(is_active=is_active)
 
@@ -228,7 +226,7 @@ class UserService:
         return res.scalar()
 
     async def update_user(
-            self, id: uuid.UUID, scheme: UserUpdateRequestScheme
+        self, id: uuid.UUID, scheme: UserUpdateRequestScheme
     ):
         query = (
             update(User)
