@@ -34,6 +34,18 @@ class _UserPasswordSchemeMixin:
     password: Password
 
 
+class _UserPasswordConfirmSchemeMixin(_UserPasswordSchemeMixin):
+    password_confirm: Password
+
+    @model_validator(mode="after")
+    def check_passwords_match(self) -> Self:
+        pw1 = self.password
+        pw2 = self.password_confirm
+        if pw1 is not None and pw2 is not None and pw1 != pw2:
+            raise ValueError("passwords do not match")
+        return self
+
+
 # using schemas
 
 
@@ -48,20 +60,12 @@ class UserDetailResponseScheme(
 
 
 class UserSignUpRequestScheme(
-    _UserPasswordSchemeMixin,
+    _UserPasswordConfirmSchemeMixin,
     _UsernameSchemeMixin,
     _UserEmailSchemeMixin,
     _UserBaseScheme,
 ):
     password_confirm: Password
-
-    @model_validator(mode="after")
-    def check_passwords_match(self) -> Self:
-        pw1 = self.password
-        pw2 = self.password_confirm
-        if pw1 is not None and pw2 is not None and pw1 != pw2:
-            raise ValueError("passwords do not match")
-        return self
 
 
 class UserSignInRequestScheme(
@@ -74,6 +78,7 @@ class UserSignInRequestScheme(
 class UserUpdateRequestScheme(
     _UserAllNamesSchemeMixin,
     _UserEmailSchemeMixin,
+    _UserPasswordConfirmSchemeMixin,
     _UserBaseScheme,
 ):
     pass

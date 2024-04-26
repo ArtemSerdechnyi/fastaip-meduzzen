@@ -58,24 +58,24 @@ async def get_user(
     return user
 
 
-@user_router.patch("/{user_id}")
+@user_router.patch("/")
 async def update_user(
-    user_id: uuid.UUID,
     body: UserUpdateRequestScheme,
+    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
     db: AsyncSession = Depends(get_async_session),
 ):
     async with UserService(db) as service:
-        await service.update_user(user_id, body)
-    return {"status_code": 200, "detail": "User updated"}
+        user = await service.self_user_update(user, body)
+    return {"status_code": 200, "detail": user}
 
 
-@user_router.delete("/{user_id}")
+@user_router.delete("/")
 async def delete_user(
-    user_id: uuid.UUID,
+    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
     db: AsyncSession = Depends(get_async_session),
 ):
     async with UserService(db) as service:
-        await service.delete_user(user_id)
+        await service.self_user_delete(user)
     return {"status_code": 204, "detail": "User deleted"}
 
 
