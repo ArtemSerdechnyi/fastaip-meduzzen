@@ -6,13 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models import User
 from app.schemas.user import (
     UserSignUpRequestScheme,
-    UserUpdateRequestScheme, OAuth2RequestFormScheme, Auth0UserScheme,
+    UserUpdateRequestScheme,
 )
 from app.services.user import (
     Auth0Service,
     JWTService,
     PasswordManager,
     UserService,
+    GenericAuthService,
 )
 from app.utils.exceptions.user import UserNotFoundException
 
@@ -78,13 +79,6 @@ user_list: list[UserSignUpRequestScheme] = [
     ),
 ]
 
-oauth2password_requests_cheme = OAuth2RequestFormScheme(
-    username=str(user1_scheme.email),
-    password=user1_scheme.password.get_secret_value(),
-)
-
-auth0_user_scheme = Auth0UserScheme(email="auth0testmail@example.com")
-
 
 @pytest.fixture(scope="function")
 async def service(session: AsyncSession) -> UserService:
@@ -149,16 +143,7 @@ async def test_get_user_by_attributes(service: UserService):
     assert user.is_active is True
 
 
-async def test_verify_user_by_email(service: UserService):
-    scheme = user1_scheme
-    user = await service.verify_user_by_email(scheme.email)
-    assert isinstance(user, User)
-    assert user.email == scheme.email
-    with pytest.raises(UserNotFoundException):
-        await service.verify_user_by_email("wrong_email@example.com")
-
-
-async def test_update_user(service: UserService):
+async def test_self_user_update(service: UserService):
     scheme = user2_scheme_for_update
     update_scheme = user_update_scheme
     await service.create_default_user(scheme)
@@ -167,29 +152,25 @@ async def test_update_user(service: UserService):
     assert user.username != update_scheme.username
     assert user.last_name != update_scheme.last_name
 
-    await service.update_user(user.user_id, update_scheme)
-    await service.session.execute(service.queries.pop())
-    await service.session.flush()
-    updated_user = await get_user_by_username(
-        update_scheme.username, service.session
-    )
-    assert updated_user.email == update_scheme.email
-    assert updated_user.username == update_scheme.username
-    assert updated_user.last_name == update_scheme.last_name
+    user = await service.self_user_update(user, update_scheme)
+    assert user.email == update_scheme.email
+    assert user.username == update_scheme.username
+    assert user.last_name == update_scheme.last_name
 
 
-async def test_delete_user(service: UserService):
+async def test_self_user_delete(service: UserService):
     scheme = user_for_delete_scheme
     new_user = User(
         email=scheme.email,
         username=scheme.username,
         hashed_password=PasswordManager(scheme.password).hash,
     )
+
     service.session.add(new_user)
     await service.session.flush()
     user = await get_user_by_username(scheme.username, service.session)
     assert user.is_active is True
-    await service.delete_user(user.user_id)
+    await service.self_user_delete(user)
     await service.session.execute(service.queries.pop())
     await service.session.flush()
     deleted_user = await get_user_by_username(scheme.username, service.session)
@@ -229,50 +210,31 @@ async def test_get_all_users(service: UserService):
 # JWT tests
 
 
-async def test_user_get_access_token(service: UserService):
-    scheme = oauth2password_requests_cheme
-    token_scheme = await service.get_access_token(scheme=scheme)
-    user_id = JWTService.get_user_email_from_token(token_scheme.access_token)
-    user = await get_user_by_id(user_id, service.session)
-    assert user.email == scheme.username
-
-
-async def test_get_user_id_from_token(service: UserService):
-    scheme = oauth2password_requests_cheme
-    token_scheme = await service.get_access_token(scheme=scheme)
-    user_id = JWTService.get_user_email_from_token(token_scheme.access_token)
-    user = await get_user_by_id(user_id, service.session)
-    assert user.email == scheme.username
-
-
-async def test_get_current_user_from_token(service: UserService):
-    scheme = oauth2password_requests_cheme
-    token_scheme = await service.get_access_token(scheme=scheme)
-    user = await JWTService.get_current_user_from_token(
-        token=token_scheme.access_token, db=service.session
-    )
-    assert user.email == user1_scheme.email
+async def test_create_and_decode_access_token(service: UserService):
+    data = {"email": user1_scheme.email}
+    token = JWTService.create_access_token(data=data)
+    token_data = JWTService.decode_token(token=token)
+    assert token_data.email == user1_scheme.email
 
 
 # Auth0 tests
 
 
-async def test_register_auth0_user(service: UserService):
-    scheme = auth0_user_scheme
-    with pytest.raises(UserNotFoundException):
-        await service.get_user_by_attributes(email=scheme.email)
-    await service.register_auth0_user(scheme)
-    await service.get_user_by_attributes(email=scheme.email)
-    await service.register_auth0_user(scheme)
-    await service.register_auth0_user(scheme)
-    await service.get_user_by_attributes(email=scheme.email)
+async def test_auth0_decode_token(service: UserService):
+    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFydGVtLnNlcmRlY2hueXlAZ21haWwuY29tIiwiaXNzIjoiaHR0cHM6Ly9kZXYtOHV3MXdtaXlucjdodzJ5Ni51cy5hdXRoMC5jb20vIiwic3ViIjoiZ29vZ2xlLW9hdXRoMnwxMTc3NDAxMDQ5NTYyOTM2NDEwNjYiLCJhdWQiOlsiaHR0cDovL2F1dGgwLWV4YW1wbGUyLmNvbSJdLCJpYXQiOjE3MTQwNzE5OTEsImV4cCI6MTcxNDE1ODM5MSwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCIsImF6cCI6ImFaM1E2N0Q0QzZQYmV6YW1xQXVnQ2I1UFM0clpUaGRzIn0._lonIhN4ho53pK5vT2KTyr8QBUYpZ7CtUMo_TkkzWsk"
+    token_data = Auth0Service.decode_token(token=token)
+    assert token_data.email == "artem.serdechnyy@gmail.com"
 
 
-async def test_get_user_scheme_from_auth0(service: UserService):
-    scheme = auth0_user_scheme
-    assert scheme.email
-    user_scheme = await Auth0Service.get_user_scheme_from_auth0(
-        auth0_user_scheme
+#  GenericAuthService
+
+
+async def test_get_user_from_any_token(session: AsyncSession):
+    data = {"email": user1_scheme.email}
+    token = JWTService.create_access_token(data=data)
+    credentials = type("Credentials", (object,), {"credentials": token})
+    user = await GenericAuthService.get_user_from_any_token(
+        credentials=credentials, db=session
     )
-    assert isinstance(user_scheme, Auth0UserScheme)
-    assert user_scheme.email == scheme.email
+    assert isinstance(user, User)
+    assert user.email == user1_scheme.email

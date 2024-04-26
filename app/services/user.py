@@ -179,12 +179,6 @@ class UserService:
         if PasswordManager(password).verify_password(hashed_password) is False:
             raise PasswordVerificationError(user=user)
 
-    async def verify_user_by_email(self, email) -> User | NoReturn:
-        user = await self.get_user_by_attributes(email=email)
-        if user is None:
-            raise UserNotFoundException(email=email)
-        return user
-
     async def _add_query(self, query):
         self._queries.append(query)
 
@@ -210,9 +204,7 @@ class UserService:
         return user
 
     async def create_default_user(self, scheme: UserSignUpRequestScheme):
-        password_hash = PasswordManager(
-            str(scheme.password.get_secret_value())
-        ).hash
+        password_hash = PasswordManager(scheme.password).hash
         new_user = User(
             email=scheme.email,
             username=scheme.username,
@@ -225,21 +217,26 @@ class UserService:
         res = await self.session.execute(query)
         return res.scalar()
 
-    async def update_user(
-        self, id: uuid.UUID, scheme: UserUpdateRequestScheme
-    ):
-        query = (
-            update(User)
-            .where(and_(User.user_id == id, User.is_active == True))
-            .values(scheme.dict(exclude_unset=True))
-            .returning(User.user_id)
-        )
-        await self._add_query(query)
+    async def self_user_update(
+        self, user: User, scheme: UserUpdateRequestScheme
+    ) -> UserDetailResponseScheme:
+        if scheme.password:
+            scheme.password = PasswordManager(scheme.password).hash
 
-    async def delete_user(self, id: uuid.UUID):
         query = (
             update(User)
-            .where(and_(User.user_id == id, User.is_active == True))
+            .where(and_(User.user_id == user.user_id, User.is_active == True))
+            .values(scheme.dict(exclude_unset=True))
+            .returning(User)
+        )
+        user = await self.session.execute(query)
+        user = user.scalar()
+        return UserDetailResponseScheme.from_orm(user)
+
+    async def self_user_delete(self, user: User):
+        query = (
+            update(User)
+            .where(and_(User.user_id == user.user_id, User.is_active == True))
             .values(is_active=False)
         )
         await self._add_query(query)
