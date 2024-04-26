@@ -82,7 +82,7 @@ async def delete_company(
     db: AsyncSession = Depends(get_async_session),
 ):
     async with CompanyService(db) as service:
-        await service.delete_self_company(company_id, owner.user_id)
+        await service.delete_self_company(company_id, owner)
     return {"status_code": 204, "detail": "Company deleted"}
 
 
