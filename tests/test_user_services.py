@@ -15,7 +15,6 @@ from app.services.user import (
     UserService,
     GenericAuthService,
 )
-from app.utils.exceptions.user import UserNotFoundException
 
 user1_scheme = UserSignUpRequestScheme(
     user_id="db1eca0e-3110-4d78-bcbc-de50d04fae1d",

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import NullPool
 
-from app.core.settings import postgres_config
+from app.core.settings import postgres_config, app_settings
 
 
 class PostgresDB[T: BaseSettings]:
@@ -30,7 +30,9 @@ class PostgresDB[T: BaseSettings]:
 
 
 _engine = create_async_engine(
-    PostgresDB(postgres_config).url, poolclass=NullPool
+    PostgresDB(postgres_config).url,
+    poolclass=NullPool,
+    echo=True if app_settings.DEBUG is True else False,
 )
 _async_session_maker = async_sessionmaker(_engine, expire_on_commit=False)
 
