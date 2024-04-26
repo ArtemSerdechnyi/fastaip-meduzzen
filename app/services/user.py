@@ -1,5 +1,4 @@
 import datetime
-import uuid
 from logging import getLogger
 from typing import NoReturn
 
