@@ -142,33 +142,20 @@ class CompanyService(Service):
     async def change_user_self_company_visibility(
         self, company_id: UUID, user: User
     ) -> UserCompanyDetailResponseScheme:
-        query = select(Company).where(
-            and_(
-                Company.company_id == company_id,
-                Company.owner_id == user.user_id,
+        query = (
+            update(Company)
+            .where(
+                and_(
+                    Company.company_id == company_id,
+                    Company.owner_id == user.user_id,
+                )
             )
+            .values(visibility=~Company.visibility)
+            .returning(Company)
         )
         result = await self.session.execute(query)
         if company := result.scalar():
-            if company.visibility is True:
-                company.visibility = False
-            else:
-                company.visibility = True
-            query = (
-                update(Company)
-                .where(
-                    and_(
-                        Company.company_id == company_id,
-                        Company.owner_id == user.user_id,
-                    )
-                )
-                .values(visibility=company.visibility)
-                .returning(Company)
-            )
-            result = await self.session.execute(query)
-            if company := result.scalar():
-                return UserCompanyDetailResponseScheme.from_orm(company)
-
+            return UserCompanyDetailResponseScheme.from_orm(company)
         raise CompanyNotFoundException(
             company_id=company_id, owner_id=user.user_id
         )
