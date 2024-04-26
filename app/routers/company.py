@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User
@@ -9,8 +9,8 @@ from app.db.postgres import get_async_session
 from app.schemas.company import (
     CompanyCreateRequestScheme,
     CompanyDetailResponseScheme,
-    CompanyUpdateRequestScheme,
     CompanyListResponseScheme,
+    CompanyUpdateRequestScheme,
     UserCompanyDetailResponseScheme,
 )
 from app.services.company import CompanyService

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import NullPool
 
-from app.core.settings import postgres_config, app_settings
+from app.core.settings import app_settings, postgres_config
 
 
 class PostgresDB[T: BaseSettings]:

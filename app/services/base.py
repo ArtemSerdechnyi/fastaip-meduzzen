@@ -1,6 +1,5 @@
-from logging import getLogger
-
 from abc import ABC
+from logging import getLogger
 
 from sqlalchemy.ext.asyncio import AsyncSession
 

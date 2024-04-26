@@ -1,13 +1,13 @@
 from uuid import UUID
 
-from sqlalchemy import select, update, and_, insert, not_
+from sqlalchemy import and_, insert, select, update
 
 from app.db.models import Company, User
 from app.schemas.company import (
     CompanyCreateRequestScheme,
-    CompanyUpdateRequestScheme,
     CompanyDetailResponseScheme,
     CompanyListResponseScheme,
+    CompanyUpdateRequestScheme,
     UserCompanyDetailResponseScheme,
 )
 from app.services.base import Service
