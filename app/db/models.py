@@ -14,7 +14,7 @@ class User(Base):
     __tablename__ = "users"
 
     user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    username = Column(String, nullable=False)
+    username = Column(String)
     first_name = Column(String)
     last_name = Column(String)
     registered_at = Column(
@@ -23,4 +23,4 @@ class User(Base):
     )
     email = Column(String, nullable=False, unique=True)
     is_active = Column(Boolean(), default=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    hashed_password = Column(String)

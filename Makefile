@@ -34,3 +34,16 @@ mm:
 .PHONY: migrate
 migrate:
 	poetry run alembic upgrade heads
+
+.PHONY: env-samples
+env-samples:
+	@awk -F '=' ' \
+		/^[^#]/ && NF >= 2 { print $$1 "=" } \
+		/^[#]/ { print } \
+		/^$$/ { print } \
+	' .env > .env.sample
+	@awk -F '=' ' \
+		/^[^#]/ && NF >= 2 { print $$1 "=" } \
+		/^[#]/ { print } \
+		/^$$/ { print } \
+	' .env.docker > .env.docker.sample
