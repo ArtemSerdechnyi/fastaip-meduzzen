@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User
@@ -86,9 +86,9 @@ async def delete_company(
     return {"status_code": 204, "detail": "Company deleted"}
 
 
-@company_router.get("/all/{page}", response_model=CompanyListResponseScheme)
+@company_router.get("/all/", response_model=CompanyListResponseScheme)
 async def list_companies(
-    page: int,
+    page: int = 1,
     db: AsyncSession = Depends(get_async_session),
     limit: int = Depends(get_companies_page_limit),
 ) -> CompanyListResponseScheme:
@@ -97,12 +97,12 @@ async def list_companies(
     return companies
 
 
-@company_router.get("/my/{page}", response_model=CompanyListResponseScheme)
+@company_router.get("/my/", response_model=CompanyListResponseScheme)
 async def my_companies(
-    page: int,
     owner: Annotated[
         User, Depends(GenericAuthService.get_user_from_any_token)
     ],
+    page: int = 1,
     db: AsyncSession = Depends(get_async_session),
     limit: int = Depends(get_companies_page_limit),
 ) -> CompanyListResponseScheme:

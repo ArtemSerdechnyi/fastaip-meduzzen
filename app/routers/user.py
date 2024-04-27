@@ -71,9 +71,9 @@ async def delete_user(
     return {"status_code": 204, "detail": "User deleted"}
 
 
-@user_router.get("/all/{page}", response_model=UsersListResponseScheme)
+@user_router.get("/all/", response_model=UsersListResponseScheme)
 async def get_all_users(
-    page: int,
+    page: int = 1,
     db: AsyncSession = Depends(get_async_session),
     limit: int = Depends(get_users_page_limit),
 ):

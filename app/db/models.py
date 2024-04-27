@@ -64,4 +64,4 @@ class Company(Base):
     owner = relationship("User", back_populates="companies")
 
     _repr_cols_num = 2
-    _repr_cols = ("visibility",)
+    _repr_cols = ("visibility", "owner_id")
