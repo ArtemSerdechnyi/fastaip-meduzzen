@@ -23,15 +23,7 @@ from app.utils.user import get_users_page_limit
 user_router = APIRouter()
 
 
-@user_router.get("/example_both_token_autn")
-async def example_both_token_autn(
-    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
-):
-    user = UserDetailResponseScheme.from_orm(user)
-    return user
-
-
-@user_router.post("/token")
+@user_router.get("/token")
 async def get_user_token(
     body: OAuth2RequestFormScheme = Depends(),
 ):
@@ -79,9 +71,9 @@ async def delete_user(
     return {"status_code": 204, "detail": "User deleted"}
 
 
-@user_router.get("/all/{page}", response_model=UsersListResponseScheme)
+@user_router.get("/all/", response_model=UsersListResponseScheme)
 async def get_all_users(
-    page: int,
+    page: int = 1,
     db: AsyncSession = Depends(get_async_session),
     limit: int = Depends(get_users_page_limit),
 ):

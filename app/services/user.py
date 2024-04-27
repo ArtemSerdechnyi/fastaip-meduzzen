@@ -21,6 +21,7 @@ from app.schemas.user import (
     UsersListResponseScheme,
     UserUpdateRequestScheme,
 )
+from app.services.base import Service
 from app.utils.exceptions.user import (
     DecodeUserTokenError,
     PasswordVerificationError,
@@ -144,31 +145,7 @@ class GenericAuthService:
             return user
 
 
-class UserService:
-    def __init__(self, session: AsyncSession):
-        self.session = session
-        self._queries = []
-
-    @property
-    def queries(self):
-        return self._queries
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type: Exception | None, exc_val, exc_tb):
-        if exc_type is None:
-            # todo add SQLAlchemy error interception
-            if self._queries is not None:
-                for query in self.queries:
-                    await self.session.execute(query)
-            await self.session.commit()
-        else:
-            await self.session.rollback()
-            logger.error(f"Error occurred {exc_type}, {exc_val}, {exc_tb}")
-            raise exc_type
-        return False  # mb True?
-
+class UserService(Service):
     @staticmethod
     def verify_user_password(
         user: User,
@@ -177,9 +154,6 @@ class UserService:
         hashed_password = user.hashed_password
         if PasswordManager(password).verify_password(hashed_password) is False:
             raise PasswordVerificationError(user=user)
-
-    async def _add_query(self, query):
-        self._queries.append(query)
 
     async def get_user_by_attributes(
         self,
@@ -197,10 +171,9 @@ class UserService:
             )
         )
         result = await self.session.execute(query)
-        user = result.scalar()
-        if not user:
-            raise UserNotFoundException(**kwargs)
-        return user
+        if user := result.scalar():
+            return user
+        raise UserNotFoundException(**kwargs)
 
     async def create_default_user(self, scheme: UserSignUpRequestScheme):
         password_hash = PasswordManager(scheme.password).hash

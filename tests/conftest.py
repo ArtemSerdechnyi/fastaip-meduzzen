@@ -33,17 +33,17 @@ async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
 _app.dependency_overrides[get_async_session] = override_get_async_session
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def anyio_backend() -> str:
     return "asyncio"
 
 
 @pytest.fixture(scope="session")
-def app() -> FastAPI:
+async def app() -> FastAPI:
     return _app
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def event_loop(request):
     """
     Create an instance of the default event loop for each test case.
@@ -68,6 +68,7 @@ async def session() -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture(autouse=True, scope="session")
+# @pytest.fixture(autouse=True, scope="module")
 async def prepare_database():
     async with engine.begin() as conn:
         await conn.run_sync(metadata.create_all)
