@@ -2,7 +2,7 @@ from abc import ABC
 from functools import wraps
 from uuid import UUID
 
-from sqlalchemy import and_, exists, not_, select, Select, BinaryExpression
+from sqlalchemy import BinaryExpression, Select, and_, exists, not_, select
 
 from app.db.models import (
     Company,
@@ -113,8 +113,7 @@ class UserValidator(BaseValidator):
             query = self._build_where_exist_select_query(
                 CompanyRequest.request_id == request_id,
                 CompanyRequest.user_id == user.user_id,
-                CompanyRequest.status
-                == CompanyRequestStatus.pending.value,
+                CompanyRequest.status == CompanyRequestStatus.pending.value,
                 CompanyRequest.is_active == True,
                 Company.is_active == True,
                 Company.owner_id != CompanyRequest.user_id,
