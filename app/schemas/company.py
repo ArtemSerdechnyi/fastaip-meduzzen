@@ -3,7 +3,15 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.db.models import CompanyRequestStatus, CompanyRole
 from app.utils.schemas import optionalise_fields
+# from app.schemas.user import _UserIDSchemeMixin
+
+
+def lazy_import_UserIDSchemeMixin():
+    from app.schemas.user import _UserIDSchemeMixin
+
+    return _UserIDSchemeMixin
 
 
 class _BaseCompany(BaseModel):
@@ -53,7 +61,7 @@ class CompanyDetailResponseScheme(
 
 
 @optionalise_fields
-class UserCompanyDetailResponseScheme(
+class OwnerCompanyDetailResponseScheme(
     _CompanyIdSchemeMixin,
     _CompanyVisibilitySchemeMixin,
     CompanyDetailResponseScheme,
@@ -74,5 +82,60 @@ class CompanyListResponseScheme(_BaseCompany):
     model_config = ConfigDict(from_attributes=True)
 
     companies: list[
-        CompanyDetailResponseScheme | UserCompanyDetailResponseScheme
+        CompanyDetailResponseScheme | OwnerCompanyDetailResponseScheme
     ]
+
+
+# company member scheme
+
+
+class _BaseCompanyMember(BaseModel):
+    pass
+
+
+_UserIDSchemeMixin = lazy_import_UserIDSchemeMixin()
+
+
+class CompanyMemberDetailResponseScheme(
+    _CompanyIdSchemeMixin, _UserIDSchemeMixin, _BaseCompanyMember
+):
+    model_config = ConfigDict(from_attributes=True)
+
+    role: CompanyRole
+
+
+class CompanyListMemberDetailResponseScheme(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    members: list[CompanyMemberDetailResponseScheme]
+
+
+# company actions
+
+
+class _BaseCompanyAction(BaseModel):
+    pass
+
+
+class _RequestIdSchemeMixin:
+    request_id: UUID
+
+
+class _StatusSchemeMixin(BaseModel):
+    status: CompanyRequestStatus
+
+
+class CompanyRequestDetailResponseScheme(
+    _RequestIdSchemeMixin,
+    _CompanyIdSchemeMixin,
+    _UserIDSchemeMixin,
+    _StatusSchemeMixin,
+    _BaseCompanyAction,
+):
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CompanyRequestListDetailResponseScheme(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    requests: list[CompanyRequestDetailResponseScheme]

@@ -5,6 +5,7 @@ from fastapi.security import HTTPBearer
 from pydantic import BaseModel, ConfigDict, EmailStr, model_validator
 from typing_extensions import Optional, Self
 
+from app.schemas.company import _CompanyIdSchemeMixin
 from app.utils.generics import Name, Password
 from app.utils.schemas import optionalise_fields
 
@@ -111,3 +112,32 @@ class UserHTTPBearer(HTTPBearer):
 class UserTokenScheme(BaseModel):
     access_token: str
     token_type: str
+
+
+# user actions scheme
+
+
+class _BaseUserActionScheme(BaseModel, ABC):
+    pass
+
+
+class _UserRequestIDSchemeMixin:
+    request_id: uuid.UUID
+
+
+class _UserRequestStatusSchemeMixin:
+    status: str
+
+
+class UserRequestDetailResponseScheme(
+    _UserRequestIDSchemeMixin,
+    _CompanyIdSchemeMixin,
+    _UserIDSchemeMixin,
+    _UserRequestStatusSchemeMixin,
+    _BaseUserActionScheme,
+):
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserRequestListDetailResponseScheme(_BaseUserActionScheme):
+    requests: list[UserRequestDetailResponseScheme]
