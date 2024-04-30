@@ -47,6 +47,7 @@ async def create_new_user(
         await service.create_default_user(body)
     return {"status_code": 201, "detail": "User created"}
 
+
 @user_router.get("/me")
 async def get_user_me(
     user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
