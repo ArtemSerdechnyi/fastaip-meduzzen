@@ -4,25 +4,25 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import User, CompanyRequestStatus, CompanyRole
+from app.db.models import CompanyRequestStatus, CompanyRole, User
 from app.db.postgres import get_async_session
 from app.schemas.company import (
     CompanyCreateRequestScheme,
     CompanyDetailResponseScheme,
+    CompanyListMemberDetailResponseScheme,
     CompanyListResponseScheme,
+    CompanyMemberDetailResponseScheme,
+    CompanyRequestDetailResponseScheme,
+    CompanyRequestListDetailResponseScheme,
     CompanyUpdateRequestScheme,
     OwnerCompanyDetailResponseScheme,
-    CompanyRequestDetailResponseScheme,
-    CompanyMemberDetailResponseScheme,
-    CompanyListMemberDetailResponseScheme,
-    CompanyRequestListDetailResponseScheme,
 )
 from app.schemas.user import UserRequestDetailResponseScheme
 from app.services.company import CompanyService
 from app.services.user import GenericAuthService
 from app.utils.company import (
-    get_companies_page_limit,
     get_companies_members_page_limit,
+    get_companies_page_limit,
     get_companies_users_request_page_limit,
 )
 

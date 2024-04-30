@@ -1,36 +1,33 @@
 from uuid import UUID
 
 from sqlalchemy import and_, insert, select, update
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import selectinload
 
 from app.db.models import (
     Company,
-    User,
-    CompanyRequest,
     CompanyMember,
+    CompanyRequest,
     CompanyRequestStatus,
-    CompanyRole,
+    User,
     UserRequest,
     UserRequestStatus,
 )
 from app.schemas.company import (
     CompanyCreateRequestScheme,
     CompanyDetailResponseScheme,
+    CompanyListMemberDetailResponseScheme,
     CompanyListResponseScheme,
+    CompanyMemberDetailResponseScheme,
+    CompanyRequestDetailResponseScheme,
+    CompanyRequestListDetailResponseScheme,
     CompanyUpdateRequestScheme,
     OwnerCompanyDetailResponseScheme,
-    CompanyRequestDetailResponseScheme,
-    CompanyMemberDetailResponseScheme,
-    CompanyListMemberDetailResponseScheme,
-    CompanyRequestListDetailResponseScheme,
 )
 from app.schemas.user import UserRequestDetailResponseScheme
 from app.services.base import Service
-
 from app.utils.exceptions.company import (
-    CompanyNotFoundException,
     CompanyMemberNotFoundException,
+    CompanyNotFoundException,
     CompanyRequestNotFoundException,
 )
 from app.utils.exceptions.user import UserRequestNotFoundException

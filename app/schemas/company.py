@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.db.models import CompanyRequestStatus, CompanyRole
 from app.utils.schemas import optionalise_fields
+
 # from app.schemas.user import _UserIDSchemeMixin
 
 

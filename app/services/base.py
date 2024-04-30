@@ -2,7 +2,6 @@ from abc import ABC
 from logging import getLogger
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Query
 
 from app.utils.validators import BaseValidator
 

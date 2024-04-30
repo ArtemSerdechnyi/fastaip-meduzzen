@@ -13,28 +13,27 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.settings import app_settings, auth0_config, gwt_config
 from app.db.models import (
-    User,
-    UserRequest,
     CompanyRequest,
     CompanyRequestStatus,
-    CompanyMember,
+    User,
+    UserRequest,
     UserRequestStatus,
 )
 from app.db.postgres import get_async_session
 from app.schemas.company import (
+    CompanyMemberDetailResponseScheme,
     CompanyRequestDetailResponseScheme,
     CompanyRequestListDetailResponseScheme,
-    CompanyMemberDetailResponseScheme,
 )
 from app.schemas.user import (
     TokenUserDataScheme,
     UserDetailResponseScheme,
     UserHTTPBearer,
+    UserRequestDetailResponseScheme,
+    UserRequestListDetailResponseScheme,
     UserSignUpRequestScheme,
     UsersListResponseScheme,
     UserUpdateRequestScheme,
-    UserRequestDetailResponseScheme,
-    UserRequestListDetailResponseScheme,
 )
 from app.services.base import Service
 from app.services.company import CompanyService

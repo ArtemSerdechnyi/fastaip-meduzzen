@@ -2,32 +2,25 @@ from abc import ABC
 from functools import wraps
 from uuid import UUID
 
-from sqlalchemy import select, exists, and_, not_, Select
+from sqlalchemy import and_, exists, not_, select
 
 from app.db.models import (
     Company,
+    CompanyMember,
     CompanyRequest,
+    CompanyRequestStatus,
     User,
     UserRequest,
-    CompanyMember,
-    CompanyRequestStatus,
 )
 
 
 class BaseValidator(ABC):
     @staticmethod
     def _get_where_exist_query(*args):
-        return not_(
-            exists().where(
-                and_(
-                    *args
-                )
-            )
-        )
+        return not_(exists().where(and_(*args)))
 
 
 class UserValidator(BaseValidator):
-
     def validate_exist_company_is_active(self, func):
         @wraps(func)
         async def wrapper(self_service, **kwargs):
