@@ -2,7 +2,7 @@ from abc import ABC
 from functools import wraps
 from uuid import UUID
 
-from sqlalchemy import and_, exists, not_, select, Select, BinaryExpression
+from sqlalchemy import BinaryExpression, Select, and_, exists, not_, select
 
 from app.db.models import (
     Company,
