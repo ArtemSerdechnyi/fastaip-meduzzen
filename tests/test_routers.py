@@ -1,5 +1,3 @@
-import pytest
-from httpx import AsyncClient
 
 
 async def test_health_check(ac):

@@ -9,7 +9,6 @@ from app.schemas.user import (
     UserUpdateRequestScheme,
 )
 from app.services.user import (
-    Auth0Service,
     JWTService,
     PasswordManager,
     UserService,

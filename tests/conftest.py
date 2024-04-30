@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app.core.settings import postgres_config_test as conf
-from app.db.models import Base, User
+from app.db.models import Base
 from app.db.postgres import get_async_session
 from app.main import app as _app
 from app.services.company import CompanyService

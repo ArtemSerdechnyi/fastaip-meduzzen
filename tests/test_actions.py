@@ -1,12 +1,9 @@
 import pytest
-from sqlalchemy import func, select, insert
-from sqlalchemy.exc import NoResultFound
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from app.db.models import (
     User,
     Company,
-    CompanyMember,
     CompanyRequest,
     UserRequest,
     UserRequestStatus,
@@ -18,18 +15,9 @@ from app.schemas.company import (
     CompanyRequestDetailResponseScheme,
 )
 from app.schemas.user import (
-    UserSignUpRequestScheme,
-    UserUpdateRequestScheme,
     UserRequestDetailResponseScheme,
 )
 from app.services.company import CompanyService
-from app.services.user import (
-    Auth0Service,
-    JWTService,
-    PasswordManager,
-    UserService,
-    GenericAuthService,
-)
 from app.utils.exceptions.user import UserRequestNotFoundException
 
 user_data = [
