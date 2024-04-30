@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from sqlalchemy import and_, insert, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.db.models import (
@@ -35,7 +36,7 @@ from app.utils.validators import CompanyValidator
 
 
 class CompanyService(Service):
-    validator = CompanyValidator()
+    validator: CompanyValidator = CompanyValidator()
 
     async def create_company(
         self,
