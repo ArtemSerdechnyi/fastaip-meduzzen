@@ -90,7 +90,9 @@ async def company_service(session: AsyncSession) -> CompanyService:
 
 
 @pytest.fixture(scope="function")
-async def company_action_service(session: AsyncSession) -> CompanyActionService:
+async def company_action_service(
+    session: AsyncSession,
+) -> CompanyActionService:
     async with CompanyActionService(session=session) as service:
         yield service
 

@@ -8,7 +8,7 @@ from app.db.models import CompanyRequestStatus, CompanyRole, User
 from app.db.postgres import get_async_session
 from app.schemas.company_member import (
     CompanyListMemberDetailResponseScheme,
-    CompanyMemberDetailResponseScheme,
+    CompanyMemberDetailResponseScheme, ListNestedCompanyMemberDetailResponseScheme,
 )
 from app.schemas.company_request import (
     CompanyRequestDetailResponseScheme,
@@ -116,7 +116,7 @@ async def get_company_members(
     page: int = 1,
     limit: int = Depends(get_companies_members_page_limit),
     db: AsyncSession = Depends(get_async_session),
-) -> CompanyListMemberDetailResponseScheme:
+) -> ListNestedCompanyMemberDetailResponseScheme:
     async with CompanyActionService(db) as service:
         members = await service.get_company_members(
             company_id=company_id,

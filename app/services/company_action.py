@@ -1,7 +1,9 @@
+from typing import Optional
 from uuid import UUID
 
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy import and_, insert, select, update
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 
 from app.db.models import (
     CompanyMember,
@@ -10,10 +12,12 @@ from app.db.models import (
     User,
     UserRequest,
     UserRequestStatus,
+    Company,
 )
 from app.schemas.company_member import (
     CompanyListMemberDetailResponseScheme,
-    CompanyMemberDetailResponseScheme,
+    CompanyMemberDetailResponseScheme, NestedCompanyMemberDetailResponseScheme,
+    ListNestedCompanyMemberDetailResponseScheme,
 )
 from app.schemas.company_request import (
     CompanyRequestDetailResponseScheme,
@@ -87,10 +91,24 @@ class CompanyActionService(Service):
         page: int,
         limit: int,
         role: str = None,
-    ) -> CompanyListMemberDetailResponseScheme:
+    ) -> ListNestedCompanyMemberDetailResponseScheme:
+
         query = (
-            select(CompanyMember)
-            .join(User)
+            select(CompanyMember, Company, User)
+            .join(
+                User, CompanyMember.user_id == User.user_id
+            )
+            .join(
+                Company, CompanyMember.company_id == Company.company_id
+            )
+            .options(
+                joinedload(
+                    CompanyMember.user
+                ),
+                joinedload(
+                    CompanyMember.company
+                ),
+            )
             .where(
                 and_(
                     CompanyMember.company_id == company_id,
@@ -98,7 +116,6 @@ class CompanyActionService(Service):
                     User.is_active == True,
                 )
             )
-            .options(selectinload(CompanyMember.user))
         )
         query = self.apply_pagination(query=query, page=page, limit=limit)
 
@@ -108,10 +125,10 @@ class CompanyActionService(Service):
         result = await self.session.execute(query)
         raw_members = result.scalars().all()
         members = [
-            CompanyMemberDetailResponseScheme.from_orm(member)
-            for member in raw_members
+            NestedCompanyMemberDetailResponseScheme(email=m.user.email, name=m.company.name, role=m.role)
+            for m in raw_members
         ]
-        return CompanyListMemberDetailResponseScheme(members=members)
+        return ListNestedCompanyMemberDetailResponseScheme(members=members)
 
     @validator.validate_company_id_by_owner
     async def get_company_users_request(
