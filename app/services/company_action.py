@@ -23,7 +23,7 @@ from app.schemas.company_request import (
 )
 from app.schemas.user_request import UserRequestDetailResponseScheme
 from app.services.base import Service
-from app.services.comapny_member import CompanyMemberService
+from app.services.company_member import CompanyMemberService
 from app.services.user_request import UserRequestService
 from app.utils.exceptions.company import (
     CompanyRequestNotFoundException,

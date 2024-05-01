@@ -18,7 +18,7 @@ from app.schemas.user_request import (
     UserRequestListDetailResponseScheme,
 )
 from app.services.base import Service
-from app.services.comapny_member import CompanyMemberService
+from app.services.company_member import CompanyMemberService
 from app.services.company_request import CompanyRequestService
 from app.utils.exceptions.company import CompanyRequestNotFoundException
 from app.utils.validators import UserValidator
