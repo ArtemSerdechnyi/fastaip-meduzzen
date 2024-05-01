@@ -8,9 +8,7 @@ from app.db.models import (
     User,
     UserRequest,
 )
-from app.schemas.company import (
-    CompanyMemberDetailResponseScheme,
-)
+from app.schemas.company_member import CompanyMemberDetailResponseScheme
 from app.schemas.company_request import (
     CompanyRequestDetailResponseScheme,
     CompanyRequestListDetailResponseScheme,

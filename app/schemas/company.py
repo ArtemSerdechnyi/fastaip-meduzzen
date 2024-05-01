@@ -3,16 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.db.models import CompanyRole
 from app.utils.schemas import optionalise_fields
-
-# from app.schemas.user import _UserIDSchemeMixin
-
-
-def lazy_import_UserIDSchemeMixin():
-    from app.schemas.user import _UserIDSchemeMixin
-
-    return _UserIDSchemeMixin
 
 
 class _BaseCompany(BaseModel):
@@ -86,26 +77,3 @@ class CompanyListResponseScheme(_BaseCompany):
         CompanyDetailResponseScheme | OwnerCompanyDetailResponseScheme
     ]
 
-
-# company member scheme
-
-
-class _BaseCompanyMember(BaseModel):
-    pass
-
-
-_UserIDSchemeMixin = lazy_import_UserIDSchemeMixin()
-
-
-class CompanyMemberDetailResponseScheme(
-    _CompanyIdSchemeMixin, _UserIDSchemeMixin, _BaseCompanyMember
-):
-    model_config = ConfigDict(from_attributes=True)
-
-    role: CompanyRole
-
-
-class CompanyListMemberDetailResponseScheme(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    members: list[CompanyMemberDetailResponseScheme]
