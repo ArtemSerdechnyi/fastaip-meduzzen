@@ -16,7 +16,9 @@ from app.db.models import Base
 from app.db.postgres import get_async_session
 from app.main import app as _app
 from app.services.company import CompanyService
+from app.services.company_action import CompanyActionService
 from app.services.user import UserService
+from app.services.user_action import UserActionService
 
 DATABASE_URL_TEST = (
     f"postgresql+asyncpg://{conf.POSTGRES_USER_TEST}:{conf.POSTGRES_PASSWORD_TEST}@"
@@ -76,8 +78,20 @@ async def user_service(session: AsyncSession) -> UserService:
 
 
 @pytest.fixture(scope="function")
+async def user_action_service(session: AsyncSession) -> UserActionService:
+    async with UserActionService(session=session) as service:
+        yield service
+
+
+@pytest.fixture(scope="function")
 async def company_service(session: AsyncSession) -> CompanyService:
     async with CompanyService(session=session) as service:
+        yield service
+
+
+@pytest.fixture(scope="function")
+async def company_action_service(session: AsyncSession) -> CompanyActionService:
+    async with CompanyActionService(session=session) as service:
         yield service
 
 

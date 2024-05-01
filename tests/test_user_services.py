@@ -9,11 +9,10 @@ from app.schemas.user import (
     UserUpdateRequestScheme,
 )
 from app.services.user import (
-    JWTService,
     PasswordManager,
     UserService,
-    GenericAuthService,
 )
+from app.services.auth import JWTService, GenericAuthService
 
 user1_scheme = UserSignUpRequestScheme(
     user_id="db1eca0e-3110-4d78-bcbc-de50d04fae1d",

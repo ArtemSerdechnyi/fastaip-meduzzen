@@ -18,6 +18,7 @@ from app.schemas.user import (
     UserRequestDetailResponseScheme,
 )
 from app.services.company import CompanyService
+from app.services.company_action import CompanyActionService
 from app.utils.exceptions.user import UserRequestNotFoundException
 
 user_data = [
@@ -92,21 +93,21 @@ async def test_create_company(company_service: CompanyService):
     assert company.name == company2_scheme.name
 
 
-async def test_create_company_user_invite(company_service):
-    owner = await company_service.session.execute(
+async def test_create_company_user_invite(company_action_service):
+    owner = await company_action_service.session.execute(
         select(User).where(User.username == "user1")
     )
     owner = owner.scalar()
-    company = await company_service.session.execute(
+    company = await company_action_service.session.execute(
         select(Company).where(Company.name == "comapny1")
     )
     company = company.scalar()
-    user = await company_service.session.execute(
+    user = await company_action_service.session.execute(
         select(User).where(User.username == "user2")
     )
     user = user.scalar()
 
-    company_request = await company_service.create_company_user_invite(
+    company_request = await company_action_service.create_company_user_invite(
         user_id=user.user_id, company_id=company.company_id, owner=owner
     )
 
@@ -117,13 +118,13 @@ async def test_create_company_user_invite(company_service):
 
     # send company request not owner
     with pytest.raises(PermissionError):
-        error_owner = await company_service.session.execute(
+        error_owner = await company_action_service.session.execute(
             select(User).where(User.username == "user2")
         )
         error_owner = error_owner.scalar()
 
         company_error_request = (
-            await company_service.create_company_user_invite(
+            await company_action_service.create_company_user_invite(
                 user_id=user.user_id,
                 company_id=company.company_id,
                 owner=error_owner,
@@ -131,17 +132,17 @@ async def test_create_company_user_invite(company_service):
         )
 
 
-async def test_user_accept_company_invitation(user_service):
-    company = await user_service.session.execute(
+async def test_user_accept_company_invitation(user_action_service):
+    company = await user_action_service.session.execute(
         select(Company).where(Company.name == "comapny1")
     )
     company = company.scalar()
-    user = await user_service.session.execute(
+    user = await user_action_service.session.execute(
         select(User).where(User.username == "user2")
     )
     user = user.scalar()
 
-    company_request = await user_service.session.execute(
+    company_request = await user_action_service.session.execute(
         select(CompanyRequest).where(
             CompanyRequest.user_id == user.user_id,
             CompanyRequest.company_id == company.company_id,
@@ -151,15 +152,15 @@ async def test_user_accept_company_invitation(user_service):
 
     # wrong user accept invite check
     with pytest.raises(PermissionError):
-        error_user = await user_service.session.execute(
+        error_user = await user_action_service.session.execute(
             select(User).where(User.username == "user3")
         )
         error_user = error_user.scalar()
-        await user_service.accept_invitation(
+        await user_action_service.accept_invitation(
             request_id=company_request.request_id, user=error_user
         )
 
-    accept_company_request = await user_service.accept_invitation(
+    accept_company_request = await user_action_service.accept_invitation(
         request_id=company_request.request_id, user=user
     )
     assert isinstance(
@@ -171,22 +172,22 @@ async def test_user_accept_company_invitation(user_service):
 
     # invite is exist check error
     with pytest.raises(PermissionError):
-        await user_service.accept_invitation(
+        await user_action_service.accept_invitation(
             request_id=company_request.request_id, user=user
         )
 
 
-async def test_create_user_request(user_service):
-    company = await user_service.session.execute(
+async def test_create_user_request(user_action_service):
+    company = await user_action_service.session.execute(
         select(Company).where(Company.name == "comapny1")
     )
     company = company.scalar()
-    user = await user_service.session.execute(
+    user = await user_action_service.session.execute(
         select(User).where(User.username == "user3")
     )
     user = user.scalar()
 
-    user_request = await user_service.create_user_request(
+    user_request = await user_action_service.create_user_request(
         company_id=company.company_id, user=user
     )
     assert isinstance(user_request, UserRequestDetailResponseScheme)
@@ -195,26 +196,26 @@ async def test_create_user_request(user_service):
 
     # error if request exist
     with pytest.raises(PermissionError):
-        await user_service.create_user_request(
+        await user_action_service.create_user_request(
             company_id=company.company_id, user=user
         )
 
 
-async def test_company_confirm_user_request(company_service):
-    owner = await company_service.session.execute(
+async def test_company_confirm_user_request(company_action_service):
+    owner = await company_action_service.session.execute(
         select(User).where(User.username == "user1")
     )
     owner = owner.scalar()
-    company = await company_service.session.execute(
+    company = await company_action_service.session.execute(
         select(Company).where(Company.name == "comapny1")
     )
     company = company.scalar()
-    user = await company_service.session.execute(
+    user = await company_action_service.session.execute(
         select(User).where(User.username == "user3")
     )
     user = user.scalar()
 
-    user_request = await company_service.session.execute(
+    user_request = await company_action_service.session.execute(
         select(UserRequest).where(
             UserRequest.user_id == user.user_id,
             UserRequest.company_id == company.company_id,
@@ -224,15 +225,15 @@ async def test_company_confirm_user_request(company_service):
 
     # error wrong owner
     with pytest.raises(PermissionError):
-        error_owner = await company_service.session.execute(
+        error_owner = await company_action_service.session.execute(
             select(User).where(User.username == "user2")
         )
         error_owner = error_owner.scalar()
-        await company_service.confirm_user_request(
+        await company_action_service.confirm_user_request(
             request_id=user_request.request_id, owner=error_owner
         )
 
-    confirm_user_request = await company_service.confirm_user_request(
+    confirm_user_request = await company_action_service.confirm_user_request(
         request_id=user_request.request_id, owner=owner
     )
     assert isinstance(confirm_user_request, UserRequestDetailResponseScheme)
@@ -242,6 +243,6 @@ async def test_company_confirm_user_request(company_service):
 
     # error if user request dont exist
     with pytest.raises(UserRequestNotFoundException):
-        await company_service.confirm_user_request(
+        await company_action_service.confirm_user_request(
             request_id=user_request.request_id, owner=owner
         )
