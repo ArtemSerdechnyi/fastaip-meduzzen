@@ -15,7 +15,10 @@ from app.schemas.company import (
     CompanyListMemberDetailResponseScheme,
     CompanyMemberDetailResponseScheme,
 )
-from app.schemas.company_request import CompanyRequestDetailResponseScheme, CompanyRequestListDetailResponseScheme
+from app.schemas.company_request import (
+    CompanyRequestDetailResponseScheme,
+    CompanyRequestListDetailResponseScheme,
+)
 from app.schemas.user_request import UserRequestDetailResponseScheme
 from app.services.base import Service
 from app.services.comapny_member import CompanyMemberService

@@ -109,6 +109,3 @@ class CompanyListMemberDetailResponseScheme(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     members: list[CompanyMemberDetailResponseScheme]
-
-
-

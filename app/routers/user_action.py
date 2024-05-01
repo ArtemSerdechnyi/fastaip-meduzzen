@@ -6,8 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User
 from app.db.postgres import get_async_session
-from app.schemas.company_request import CompanyRequestDetailResponseScheme, CompanyRequestListDetailResponseScheme
-from app.schemas.user_request import UserRequestDetailResponseScheme, UserRequestListDetailResponseScheme
+from app.schemas.company_request import (
+    CompanyRequestDetailResponseScheme,
+    CompanyRequestListDetailResponseScheme,
+)
+from app.schemas.user_request import (
+    UserRequestDetailResponseScheme,
+    UserRequestListDetailResponseScheme,
+)
 from app.services.auth import GenericAuthService
 from app.services.user_action import UserActionService
 from app.utils.user import get_users_page_limit

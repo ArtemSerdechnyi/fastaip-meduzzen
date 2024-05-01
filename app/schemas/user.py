@@ -87,7 +87,3 @@ class UsersListResponseScheme(_UserBaseScheme):
     model_config = ConfigDict(from_attributes=True)
 
     users: list[UserDetailResponseScheme]
-
-
-
-

@@ -108,4 +108,3 @@ class GenericAuthService:
             else:
                 raise DecodeUserTokenError()
             return user
-
