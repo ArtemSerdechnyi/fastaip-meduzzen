@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import insert, update, and_
+from sqlalchemy import and_, insert, update
 
 from app.db.models import CompanyMember
 from app.services.base import Service

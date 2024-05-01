@@ -1,43 +1,25 @@
 from uuid import UUID
 
 from sqlalchemy import and_, insert, select, update
-from sqlalchemy.orm import selectinload
 
 from app.db.models import (
     Company,
-    CompanyMember,
-    CompanyRequest,
-    CompanyRequestStatus,
     User,
-    UserRequest,
-    UserRequestStatus,
 )
 from app.schemas.company import (
     CompanyCreateRequestScheme,
     CompanyDetailResponseScheme,
-    CompanyListMemberDetailResponseScheme,
     CompanyListResponseScheme,
-    CompanyMemberDetailResponseScheme,
-    CompanyRequestDetailResponseScheme,
-    CompanyRequestListDetailResponseScheme,
     CompanyUpdateRequestScheme,
     OwnerCompanyDetailResponseScheme,
 )
-from app.schemas.user import UserRequestDetailResponseScheme
 from app.services.base import Service
-from app.services.comapny_member import CompanyMemberService
-from app.services.user_request import UserRequestService
 from app.utils.exceptions.company import (
-    CompanyMemberNotFoundException,
     CompanyNotFoundException,
-    CompanyRequestNotFoundException,
 )
-from app.utils.exceptions.user import UserRequestNotFoundException
-from app.utils.validators import CompanyValidator
 
 
 class CompanyService(Service):
-
     async def create_company(
         self,
         owner: User,

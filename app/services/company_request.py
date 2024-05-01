@@ -1,14 +1,13 @@
 from uuid import UUID
 
-from sqlalchemy import update, and_
+from sqlalchemy import and_, update
 
-from app.db.models import CompanyRequestStatus, CompanyRequest
+from app.db.models import CompanyRequest, CompanyRequestStatus
 from app.services.base import Service
 from app.utils.exceptions.company import CompanyRequestNotFoundException
 
 
 class CompanyRequestService(Service):
-
     async def _update_company_request_status(
         self, request_id: UUID, status: CompanyRequestStatus
     ) -> CompanyRequest:

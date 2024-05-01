@@ -2,16 +2,18 @@ import datetime
 
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials
-
-from jose import jwt, JWTError
+from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.settings import gwt_config, app_settings, auth0_config
+from app.core.settings import app_settings, auth0_config, gwt_config
 from app.db.models import User
 from app.db.postgres import get_async_session
 from app.schemas.user import TokenUserDataScheme, UserHTTPBearer
 from app.services.user import UserService
-from app.utils.exceptions.user import UserNotFoundException, DecodeUserTokenError
+from app.utils.exceptions.user import (
+    DecodeUserTokenError,
+    UserNotFoundException,
+)
 
 
 class JWTService:

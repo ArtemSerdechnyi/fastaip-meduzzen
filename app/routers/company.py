@@ -13,8 +13,8 @@ from app.schemas.company import (
     CompanyUpdateRequestScheme,
     OwnerCompanyDetailResponseScheme,
 )
-from app.services.company import CompanyService
 from app.services.auth import GenericAuthService
+from app.services.company import CompanyService
 from app.utils.company import (
     get_companies_page_limit,
 )

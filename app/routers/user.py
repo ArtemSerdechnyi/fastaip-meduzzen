@@ -13,10 +13,10 @@ from app.schemas.user import (
     UsersListResponseScheme,
     UserUpdateRequestScheme,
 )
+from app.services.auth import GenericAuthService, JWTService
 from app.services.user import (
     UserService,
 )
-from app.services.auth import JWTService, GenericAuthService
 from app.utils.user import get_users_page_limit
 
 user_router = APIRouter()

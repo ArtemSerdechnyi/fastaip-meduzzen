@@ -4,10 +4,10 @@ import app.routers.company_action
 import app.routers.user_action
 from app.routers import (
     company,
+    company_action,
     health_check,
     user,
     user_action,
-    company_action,
 )
 
 __all__ = [

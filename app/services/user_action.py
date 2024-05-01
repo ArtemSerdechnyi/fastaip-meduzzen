@@ -1,9 +1,5 @@
-from logging import getLogger
-from typing import NoReturn
 from uuid import UUID
 
-from passlib.context import CryptContext
-from pydantic import SecretStr
 from sqlalchemy import and_, insert, select, update
 
 from app.db.models import (
@@ -18,22 +14,13 @@ from app.schemas.company import (
     CompanyRequestListDetailResponseScheme,
 )
 from app.schemas.user import (
-    UserDetailResponseScheme,
     UserRequestDetailResponseScheme,
     UserRequestListDetailResponseScheme,
-    UserSignUpRequestScheme,
-    UsersListResponseScheme,
-    UserUpdateRequestScheme,
 )
 from app.services.base import Service
 from app.services.comapny_member import CompanyMemberService
 from app.services.company_request import CompanyRequestService
 from app.utils.exceptions.company import CompanyRequestNotFoundException
-from app.utils.exceptions.user import (
-    PasswordVerificationError,
-    UserNotFoundException,
-)
-from app.utils.generics import Password
 from app.utils.validators import UserValidator
 
 

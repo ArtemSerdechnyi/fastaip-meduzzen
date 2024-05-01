@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models import User
 from app.db.postgres import get_async_session
 from app.schemas.company import (
-    CompanyRequestListDetailResponseScheme,
     CompanyRequestDetailResponseScheme,
+    CompanyRequestListDetailResponseScheme,
 )
 from app.schemas.user import (
     UserRequestDetailResponseScheme,

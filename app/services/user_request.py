@@ -1,14 +1,13 @@
 from uuid import UUID
 
-from sqlalchemy import update, and_
+from sqlalchemy import and_, update
 
-from app.db.models import UserRequestStatus, UserRequest
+from app.db.models import UserRequest, UserRequestStatus
 from app.services.base import Service
 from app.utils.exceptions.user import UserRequestNotFoundException
 
 
 class UserRequestService(Service):
-
     async def _update_user_request_status(
         self, request_id: UUID, status: UserRequestStatus
     ) -> UserRequest:
