@@ -140,7 +140,7 @@ async def delete_company(
     return {"status_code": 204, "detail": "Company deleted"}
 
 
-# company actions routers
+
 
 
 @company_action_router.post("/{company_id}/invite/{user_id}")
@@ -159,6 +159,7 @@ async def company_user_invite(
             owner=owner,
         )
     return request
+
 
 
 @company_action_router.delete("/{request_id}")

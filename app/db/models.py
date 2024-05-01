@@ -185,3 +185,4 @@ class UserRequest(Base):
 
     __repr_cols_num = 4
     __repr_cols = ("is_active",)
+
