@@ -76,4 +76,3 @@ class CompanyListResponseScheme(_BaseCompany):
     companies: list[
         CompanyDetailResponseScheme | OwnerCompanyDetailResponseScheme
     ]
-
