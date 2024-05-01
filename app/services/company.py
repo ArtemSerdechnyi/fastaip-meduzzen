@@ -8,10 +8,10 @@ from app.db.models import (
     CompanyMember,
     CompanyRequest,
     CompanyRequestStatus,
+    CompanyRole,
     User,
     UserRequest,
     UserRequestStatus,
-    CompanyRole
 )
 from app.schemas.company import (
     CompanyCreateRequestScheme,
@@ -392,7 +392,9 @@ class CompanyService(Service):
     @validator.validate_check_user_in_company
     @validator.validate_user_exist_and_active_by_user_id
     @validator.validate_company_id_by_owner
-    async def appoint_administrator(self, company_id: UUID, user_id: UUID, owner: User) -> CompanyMemberDetailResponseScheme:
+    async def appoint_administrator(
+        self, company_id: UUID, user_id: UUID, owner: User
+    ) -> CompanyMemberDetailResponseScheme:
         admin_role = CompanyRole.admin.value
         query = (
             update(CompanyMember)
@@ -409,4 +411,6 @@ class CompanyService(Service):
         result = await self.session.execute(query)
         if company_member := result.scalar():
             return CompanyMemberDetailResponseScheme.from_orm(company_member)
-        raise CompanyMemberNotFoundException(company_id=company_id, user_id=user_id)
+        raise CompanyMemberNotFoundException(
+            company_id=company_id, user_id=user_id
+        )
