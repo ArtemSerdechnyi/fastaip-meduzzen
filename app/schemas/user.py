@@ -1,11 +1,9 @@
 import uuid
 from abc import ABC
 
-from fastapi.security import HTTPBearer
 from pydantic import BaseModel, ConfigDict, EmailStr, model_validator
 from typing_extensions import Optional, Self
 
-from app.schemas.company import _CompanyIdSchemeMixin
 from app.utils.generics import Name, Password
 from app.utils.schemas import optionalise_fields
 
@@ -91,53 +89,5 @@ class UsersListResponseScheme(_UserBaseScheme):
     users: list[UserDetailResponseScheme]
 
 
-class TokenUserDataScheme(_UserEmailSchemeMixin, BaseModel):
-    pass
 
 
-class OAuth2RequestFormScheme:
-    def __init__(self, email: EmailStr, password: Password):
-        self.email = email
-        self.password = password
-
-
-class Auth0UserScheme(_UserEmailSchemeMixin, _UserBaseScheme):
-    pass
-
-
-class UserHTTPBearer(HTTPBearer):
-    pass
-
-
-class UserTokenScheme(BaseModel):
-    access_token: str
-    token_type: str
-
-
-# user actions scheme
-
-
-class _BaseUserActionScheme(BaseModel, ABC):
-    pass
-
-
-class _UserRequestIDSchemeMixin:
-    request_id: uuid.UUID
-
-
-class _UserRequestStatusSchemeMixin:
-    status: str
-
-
-class UserRequestDetailResponseScheme(
-    _UserRequestIDSchemeMixin,
-    _CompanyIdSchemeMixin,
-    _UserIDSchemeMixin,
-    _UserRequestStatusSchemeMixin,
-    _BaseUserActionScheme,
-):
-    model_config = ConfigDict(from_attributes=True)
-
-
-class UserRequestListDetailResponseScheme(_BaseUserActionScheme):
-    requests: list[UserRequestDetailResponseScheme]

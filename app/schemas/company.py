@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.db.models import CompanyRequestStatus, CompanyRole
+from app.db.models import CompanyRole
 from app.utils.schemas import optionalise_fields
 
 # from app.schemas.user import _UserIDSchemeMixin
@@ -111,32 +111,4 @@ class CompanyListMemberDetailResponseScheme(BaseModel):
     members: list[CompanyMemberDetailResponseScheme]
 
 
-# company actions
 
-
-class _BaseCompanyAction(BaseModel):
-    pass
-
-
-class _RequestIdSchemeMixin:
-    request_id: UUID
-
-
-class _StatusSchemeMixin(BaseModel):
-    status: CompanyRequestStatus
-
-
-class CompanyRequestDetailResponseScheme(
-    _RequestIdSchemeMixin,
-    _CompanyIdSchemeMixin,
-    _UserIDSchemeMixin,
-    _StatusSchemeMixin,
-    _BaseCompanyAction,
-):
-    model_config = ConfigDict(from_attributes=True)
-
-
-class CompanyRequestListDetailResponseScheme(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    requests: list[CompanyRequestDetailResponseScheme]

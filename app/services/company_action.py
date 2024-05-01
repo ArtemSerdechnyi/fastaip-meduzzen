@@ -14,10 +14,9 @@ from app.db.models import (
 from app.schemas.company import (
     CompanyListMemberDetailResponseScheme,
     CompanyMemberDetailResponseScheme,
-    CompanyRequestDetailResponseScheme,
-    CompanyRequestListDetailResponseScheme,
 )
-from app.schemas.user import UserRequestDetailResponseScheme
+from app.schemas.company_request import CompanyRequestDetailResponseScheme, CompanyRequestListDetailResponseScheme
+from app.schemas.user_request import UserRequestDetailResponseScheme
 from app.services.base import Service
 from app.services.comapny_member import CompanyMemberService
 from app.services.user_request import UserRequestService

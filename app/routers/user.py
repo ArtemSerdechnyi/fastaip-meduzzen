@@ -7,12 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models import User
 from app.db.postgres import get_async_session
 from app.schemas.user import (
-    OAuth2RequestFormScheme,
     UserDetailResponseScheme,
     UserSignUpRequestScheme,
     UsersListResponseScheme,
     UserUpdateRequestScheme,
 )
+from app.schemas.auth import OAuth2RequestFormScheme
 from app.services.auth import GenericAuthService, JWTService
 from app.services.user import (
     UserService,

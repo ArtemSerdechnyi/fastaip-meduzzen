@@ -9,10 +9,9 @@ from app.db.postgres import get_async_session
 from app.schemas.company import (
     CompanyListMemberDetailResponseScheme,
     CompanyMemberDetailResponseScheme,
-    CompanyRequestDetailResponseScheme,
-    CompanyRequestListDetailResponseScheme,
 )
-from app.schemas.user import UserRequestDetailResponseScheme
+from app.schemas.company_request import CompanyRequestDetailResponseScheme, CompanyRequestListDetailResponseScheme
+from app.schemas.user_request import UserRequestDetailResponseScheme
 from app.services.auth import GenericAuthService
 from app.services.company_action import CompanyActionService
 from app.utils.company import (

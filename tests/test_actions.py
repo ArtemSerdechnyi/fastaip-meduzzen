@@ -12,11 +12,9 @@ from app.db.models import (
 from app.schemas.company import (
     CompanyCreateRequestScheme,
     CompanyDetailResponseScheme,
-    CompanyRequestDetailResponseScheme,
 )
-from app.schemas.user import (
-    UserRequestDetailResponseScheme,
-)
+from app.schemas.company_request import CompanyRequestDetailResponseScheme
+from app.schemas.user_request import UserRequestDetailResponseScheme
 from app.services.company import CompanyService
 from app.services.company_action import CompanyActionService
 from app.utils.exceptions.user import UserRequestNotFoundException
