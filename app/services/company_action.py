@@ -1,23 +1,21 @@
-from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
 from sqlalchemy import and_, insert, select, update
-from sqlalchemy.orm import selectinload, joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from app.db.models import (
+    Company,
     CompanyMember,
     CompanyRequest,
     CompanyRequestStatus,
     User,
     UserRequest,
     UserRequestStatus,
-    Company,
 )
 from app.schemas.company_member import (
-    CompanyListMemberDetailResponseScheme,
-    CompanyMemberDetailResponseScheme, NestedCompanyMemberDetailResponseScheme,
+    CompanyMemberDetailResponseScheme,
     ListNestedCompanyMemberDetailResponseScheme,
+    NestedCompanyMemberDetailResponseScheme,
 )
 from app.schemas.company_request import (
     CompanyRequestDetailResponseScheme,
@@ -92,22 +90,13 @@ class CompanyActionService(Service):
         limit: int,
         role: str = None,
     ) -> ListNestedCompanyMemberDetailResponseScheme:
-
         query = (
             select(CompanyMember, Company, User)
-            .join(
-                User, CompanyMember.user_id == User.user_id
-            )
-            .join(
-                Company, CompanyMember.company_id == Company.company_id
-            )
+            .join(User, CompanyMember.user_id == User.user_id)
+            .join(Company, CompanyMember.company_id == Company.company_id)
             .options(
-                joinedload(
-                    CompanyMember.user
-                ),
-                joinedload(
-                    CompanyMember.company
-                ),
+                joinedload(CompanyMember.user),
+                joinedload(CompanyMember.company),
             )
             .where(
                 and_(
@@ -125,7 +114,9 @@ class CompanyActionService(Service):
         result = await self.session.execute(query)
         raw_members = result.scalars().all()
         members = [
-            NestedCompanyMemberDetailResponseScheme(email=m.user.email, name=m.company.name, role=m.role)
+            NestedCompanyMemberDetailResponseScheme(
+                email=m.user.email, name=m.company.name, role=m.role
+            )
             for m in raw_members
         ]
         return ListNestedCompanyMemberDetailResponseScheme(members=members)

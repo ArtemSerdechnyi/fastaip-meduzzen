@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict
 
 from app.db.models import CompanyRole
 from app.schemas.company import _CompanyIdSchemeMixin, _CompanyNameSchemeMixin
-from app.schemas.user import _UserIDSchemeMixin, _UserEmailSchemeMixin
+from app.schemas.user import _UserEmailSchemeMixin, _UserIDSchemeMixin
 
 
 class _BaseCompanyMember(BaseModel):
