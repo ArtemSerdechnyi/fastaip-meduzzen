@@ -195,7 +195,7 @@ async def company_remove_user(
     return member
 
 
-@company_action_router.get("/confirm_user_request/{request_id}")  # todo
+@company_action_router.get("/confirm_user_request/{request_id}")
 async def confirm_user_request(
     owner: Annotated[
         User, Depends(GenericAuthService.get_user_from_any_token)
@@ -211,7 +211,7 @@ async def confirm_user_request(
     return user_request
 
 
-@company_action_router.get("/deny_user_request/{request_id}")  # todo
+@company_action_router.get("/deny_user_request/{request_id}")
 async def deny_user_request(
     owner: Annotated[
         User, Depends(GenericAuthService.get_user_from_any_token)
@@ -265,3 +265,21 @@ async def get_company_users_request(
             limit=limit,
         )
     return invitations
+
+
+@company_action_router.patch("/{company_id}/appoint/{user_id}")
+async def appoint_administrator(
+    owner: Annotated[
+        User, Depends(GenericAuthService.get_user_from_any_token)
+    ],
+    company_id: UUID,
+    user_id: UUID,
+    db: AsyncSession = Depends(get_async_session),
+) -> CompanyMemberDetailResponseScheme:
+    async with CompanyService(db) as service:
+        member = await service.appoint_administrator(
+            company_id=company_id,
+            user_id=user_id,
+            owner=owner,
+        )
+    return member
