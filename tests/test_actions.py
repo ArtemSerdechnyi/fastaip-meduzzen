@@ -7,12 +7,12 @@ from app.db.models import (
     CompanyRequest,
     UserRequest,
     UserRequestStatus,
-    CompanyRequestStatus,
+    CompanyRequestStatus, CompanyRole,
 )
 from app.schemas.company import (
     CompanyCreateRequestScheme,
     CompanyDetailResponseScheme,
-    CompanyRequestDetailResponseScheme,
+    CompanyRequestDetailResponseScheme, CompanyMemberDetailResponseScheme,
 )
 from app.schemas.user import (
     UserRequestDetailResponseScheme,
@@ -245,3 +245,27 @@ async def test_company_confirm_user_request(company_service):
         await company_service.confirm_user_request(
             request_id=user_request.request_id, owner=owner
         )
+
+
+async def test_appoint_administrator(company_service: CompanyService):
+    owner = await company_service.session.execute(
+        select(User).where(User.username == "user1")
+    )
+    owner = owner.scalar()
+    company = await company_service.session.execute(
+        select(Company).where(Company.name == "comapny1")
+    )
+    company = company.scalar()
+    user = await company_service.session.execute(
+        select(User).where(User.username == "user2")
+    )
+    user = user.scalar()
+
+    member = await company_service.appoint_administrator(
+        company_id=company.company_id, user_id=user.user_id, owner=owner
+    )
+    assert isinstance(member,  CompanyMemberDetailResponseScheme)
+    assert member.user_id == user.user_id
+    assert member.company_id == company.company_id
+    assert member.role == CompanyRole.admin.value
+
