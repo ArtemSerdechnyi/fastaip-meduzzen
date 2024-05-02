@@ -1,11 +1,10 @@
 from pydantic import BaseModel, EmailStr
 
-from app.schemas.user import _UserEmailSchemeMixin
 from app.utils.generics import Password
 
 
-class TokenUserDataScheme(_UserEmailSchemeMixin, BaseModel):
-    pass
+class TokenUserDataScheme(BaseModel):
+    email: EmailStr
 
 
 class OAuth2RequestFormScheme:

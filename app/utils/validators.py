@@ -2,7 +2,14 @@ from abc import ABC
 from functools import wraps
 from uuid import UUID
 
-from sqlalchemy import BinaryExpression, Select, and_, exists, not_, select
+from sqlalchemy import (
+    Select,
+    and_,
+    exists,
+    not_,
+    select,
+    ClauseElement,
+)
 
 from app.db.models import (
     Company,
@@ -16,11 +23,11 @@ from app.db.models import (
 
 class BaseValidator(ABC):
     @staticmethod
-    def _build_where_exist_select_query(*args: BinaryExpression) -> Select:
+    def _build_where_exist_select_query(*args: ClauseElement) -> Select:
         return select(exists().where(and_(*args)))
 
     @staticmethod
-    def _build_where_not_exist_select_query(*args: BinaryExpression) -> Select:
+    def _build_where_not_exist_select_query(*args: ClauseElement) -> Select:
         return select(~exists().where(and_(*args)))
 
 
@@ -41,7 +48,7 @@ class UserValidator(BaseValidator):
                 Company.is_active == True,
             )
 
-            result = await self_service.session.execute(query)
+            result = await self_service._session.execute(query)
             exist = result.scalar()
 
             if not exist:
@@ -69,7 +76,7 @@ class UserValidator(BaseValidator):
                 UserRequest.user_id == user.user_id,
             )
 
-            result = await self_service.session.execute(query)
+            result = await self_service._session.execute(query)
             exist = result.scalar()
 
             if not exist:
@@ -106,7 +113,7 @@ class UserValidator(BaseValidator):
                 check_user_in_company,
             )
 
-            result = await self_service.session.execute(query)
+            result = await self_service._session.execute(query)
             exist = result.scalar()
 
             if not exist:
@@ -147,7 +154,7 @@ class UserValidator(BaseValidator):
                 not_(check_user_in_company),
             )
 
-            result = await self_service.session.execute(query)
+            result = await self_service._session.execute(query)
             exist = result.scalar()
 
             if not exist:
@@ -179,7 +186,7 @@ class UserValidator(BaseValidator):
             )
             print(query)
 
-            result = await self_service.session.execute(query)
+            result = await self_service._session.execute(query)
             exist = result.scalar()
 
             if not exist:
@@ -209,7 +216,7 @@ class UserValidator(BaseValidator):
                 CompanyMember.is_active == True,
             )
 
-            result = await self_service.session.execute(query)
+            result = await self_service._session.execute(query)
             exist = result.scalar()
 
             if not exist:
@@ -239,7 +246,7 @@ class CompanyValidator(BaseValidator):
                 Company.owner_id == owner.user_id,
             )
 
-            result = await self_service.session.execute(query)
+            result = await self_service._session.execute(query)
             exist = result.scalar()
 
             if not exist:
@@ -270,7 +277,7 @@ class CompanyValidator(BaseValidator):
                 Company.is_active == True,
             )
 
-            result = await self_service.session.execute(query)
+            result = await self_service._session.execute(query)
             exist = result.scalar()
 
             if not exist:
@@ -302,7 +309,7 @@ class CompanyValidator(BaseValidator):
                 Company.is_active == True,
             )
 
-            result = await self_service.session.execute(query)
+            result = await self_service._session.execute(query)
             exist = result.scalar()
 
             if not exist:
@@ -331,7 +338,7 @@ class CompanyValidator(BaseValidator):
                 User.is_active == True,
             )
 
-            result = await self_service.session.execute(query)
+            result = await self_service._session.execute(query)
             exist = result.scalar()
 
             if not exist:
@@ -364,7 +371,7 @@ class CompanyValidator(BaseValidator):
                 Company.owner_id != UserRequest.user_id,
             )
 
-            result = await self_service.session.execute(query)
+            result = await self_service._session.execute(query)
             exist = result.scalar()
 
             if not exist:
@@ -397,7 +404,7 @@ class CompanyValidator(BaseValidator):
                 CompanyRequest.is_active == True,
             )
 
-            result = await self_service.session.execute(query)
+            result = await self_service._session.execute(query)
             exist = result.scalar()
 
             if not exist:
@@ -427,7 +434,7 @@ class CompanyValidator(BaseValidator):
                 CompanyMember.is_active == True,
             )
 
-            result = await self_service.session.execute(query)
+            result = await self_service._session.execute(query)
             exist = result.scalar()
 
             if not exist:

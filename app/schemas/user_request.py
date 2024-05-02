@@ -1,27 +1,25 @@
-import uuid
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from app.schemas.company import _CompanyIdSchemeMixin
-from app.schemas.user import _UserIDSchemeMixin
+from app.db.models import UserRequestStatus
 
 
-class _UserRequestIDSchemeMixin:
-    request_id: uuid.UUID
-
-
-class _UserRequestStatusSchemeMixin:
-    status: str
+class UserRequestCreateScheme(BaseModel):
+    company_id: UUID
+    user_id: UUID
+    status: str = UserRequestStatus.pending.value
 
 
 class UserRequestDetailResponseScheme(
-    _UserRequestIDSchemeMixin,
-    _CompanyIdSchemeMixin,
-    _UserIDSchemeMixin,
-    _UserRequestStatusSchemeMixin,
     BaseModel,
 ):
     model_config = ConfigDict(from_attributes=True)
+
+    request_id: UUID
+    company_id: UUID
+    user_id: UUID
+    status: str
 
 
 class UserRequestListDetailResponseScheme(BaseModel):

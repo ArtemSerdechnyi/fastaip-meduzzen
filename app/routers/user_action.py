@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User
 from app.db.postgres import get_async_session
+from app.schemas.company_member import CompanyMemberDetailResponseScheme
 from app.schemas.company_request import (
     CompanyRequestDetailResponseScheme,
     CompanyRequestListDetailResponseScheme,
@@ -16,6 +17,7 @@ from app.schemas.user_request import (
 )
 from app.services.auth import GenericAuthService
 from app.services.user_action import UserActionService
+from app.utils.services import get_user_action_service
 from app.utils.user import get_users_page_limit
 
 user_action_router = APIRouter()
@@ -23,14 +25,13 @@ user_action_router = APIRouter()
 
 @user_action_router.post("/requests/{company_id}")
 async def send_join_request(
-    company_id: UUID,
+    service: Annotated[UserActionService, Depends(get_user_action_service)],
     user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
-    db: AsyncSession = Depends(get_async_session),
+    company_id: UUID,
 ) -> UserRequestDetailResponseScheme:
-    async with UserActionService(db) as service:
-        request = await service.create_user_request(
-            company_id=company_id, user=user
-        )
+    request = await service.create_user_request(
+        company_id=company_id, user=user
+    )
     return request
 
 
@@ -38,40 +39,37 @@ async def send_join_request(
 async def cancel_join_request(
     request_id: UUID,
     user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
-    db: AsyncSession = Depends(get_async_session),
+    service: Annotated[UserActionService, Depends(get_user_action_service)],
 ) -> UserRequestDetailResponseScheme:
-    async with UserActionService(db) as service:
-        request = await service.cancel_user_request(
-            request_id=request_id, user=user
-        )
+    request = await service.cancel_user_request(
+        request_id=request_id, user=user
+    )
     return request
 
 
 @user_action_router.get("/requests")
 async def list_user_requests(
     user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
-    db: AsyncSession = Depends(get_async_session),
+    service: Annotated[UserActionService, Depends(get_user_action_service)],
     page: int = 1,
     limit: int = Depends(get_users_page_limit),
 ) -> UserRequestListDetailResponseScheme:
-    async with UserActionService(db) as service:
-        requests = await service.list_user_requests(
-            user=user, page=page, limit=limit
-        )
+    requests = await service.list_user_requests(
+        user=user, page=page, limit=limit
+    )
     return requests
 
 
 @user_action_router.get("/invitations")
 async def list_user_invitations(
     user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
-    db: AsyncSession = Depends(get_async_session),
+    service: Annotated[UserActionService, Depends(get_user_action_service)],
     page: int = 1,
     limit: int = Depends(get_users_page_limit),
 ) -> CompanyRequestListDetailResponseScheme:
-    async with UserActionService(db) as service:
-        invitations = await service.list_user_invitations(
-            user=user, page=page, limit=limit
-        )
+    invitations = await service.list_company_requests_for_user(
+        user=user, page=page, limit=limit
+    )
     return invitations
 
 
@@ -79,12 +77,11 @@ async def list_user_invitations(
 async def accept_invite(
     request_id: UUID,
     user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
-    db: AsyncSession = Depends(get_async_session),
-) -> CompanyRequestDetailResponseScheme:
-    async with UserActionService(db) as service:
-        request = await service.accept_invitation(
-            request_id=request_id, user=user
-        )
+    service: Annotated[UserActionService, Depends(get_user_action_service)],
+) -> CompanyMemberDetailResponseScheme:
+    request = await service.accept_company_request(
+        request_id=request_id, user=user
+    )
     return request
 
 
@@ -92,12 +89,9 @@ async def accept_invite(
 async def reject_invite(
     request_id: UUID,
     user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
-    db: AsyncSession = Depends(get_async_session),
+    service: Annotated[UserActionService, Depends(get_user_action_service)],
 ) -> CompanyRequestDetailResponseScheme:
-    async with UserActionService(db) as service:
-        request = await service.reject_invitation(
-            request_id=request_id, user=user
-        )
+    request = await service.reject_invitation(request_id=request_id, user=user)
     return request
 
 
@@ -105,8 +99,7 @@ async def reject_invite(
 async def leave_company(
     company_id: UUID,
     user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
-    db: AsyncSession = Depends(get_async_session),
-):
-    async with UserActionService(db) as service:
-        await service.leave_company(company_id=company_id, user=user)
-    return {"status_code": 204, "detail": "Left the company"}
+    service: Annotated[UserActionService, Depends(get_user_action_service)],
+) -> CompanyMemberDetailResponseScheme:
+    member = await service.leave_company(company_id=company_id, user=user)
+    return member

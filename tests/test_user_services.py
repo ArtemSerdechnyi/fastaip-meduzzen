@@ -5,16 +5,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User
 from app.schemas.user import (
-    UserSignUpRequestScheme,
+    UserSchemeSignUpRequestScheme,
     UserUpdateRequestScheme,
 )
 from app.services.user import (
-    PasswordManager,
     UserService,
 )
+from app.utils.user import PasswordManager
 from app.services.auth import JWTService, GenericAuthService
 
-user1_scheme = UserSignUpRequestScheme(
+user1_scheme = UserSchemeSignUpRequestScheme(
     user_id="db1eca0e-3110-4d78-bcbc-de50d04fae1d",
     email="test@example.com",
     username="testuser",
@@ -22,7 +22,7 @@ user1_scheme = UserSignUpRequestScheme(
     password_confirm="password123",
 )
 
-user2_scheme_for_update = UserSignUpRequestScheme(
+user2_scheme_for_update = UserSchemeSignUpRequestScheme(
     email="forupdate@example.com",
     username="forupdate",
     password="12345678",
@@ -31,44 +31,44 @@ user2_scheme_for_update = UserSignUpRequestScheme(
 user_update_scheme = UserUpdateRequestScheme(
     email="new@example.com", username="updatedname", last_name="lastname"
 )
-user_for_delete_scheme = UserSignUpRequestScheme(
+user_for_delete_scheme = UserSchemeSignUpRequestScheme(
     email="testdel@example.com",
     username="tdeluser",
     password="password123",
     password_confirm="password123",
 )
-user_list: list[UserSignUpRequestScheme] = [
-    UserSignUpRequestScheme(
+user_list: list[UserSchemeSignUpRequestScheme] = [
+    UserSchemeSignUpRequestScheme(
         email="test1@example.com",
         username="test1",
         password="password123",
         password_confirm="password123",
     ),
-    UserSignUpRequestScheme(
+    UserSchemeSignUpRequestScheme(
         email="test2@example.com",
         username="test2",
         password="password123",
         password_confirm="password123",
     ),
-    UserSignUpRequestScheme(
+    UserSchemeSignUpRequestScheme(
         email="test3@example.com",
         username="test3",
         password="password123",
         password_confirm="password123",
     ),
-    UserSignUpRequestScheme(
+    UserSchemeSignUpRequestScheme(
         email="test4@example.com",
         username="test4",
         password="password123",
         password_confirm="password123",
     ),
-    UserSignUpRequestScheme(
+    UserSchemeSignUpRequestScheme(
         email="test5@example.com",
         username="test5",
         password="password123",
         password_confirm="password123",
     ),
-    UserSignUpRequestScheme(
+    UserSchemeSignUpRequestScheme(
         email="test6@example.com",
         username="test6",
         password="password123",

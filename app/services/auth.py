@@ -8,8 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.settings import app_settings, auth0_config, gwt_config
 from app.db.models import User
 from app.db.postgres import get_async_session
+from app.repositories.user import UserRepository
 from app.schemas.auth import TokenUserDataScheme
-from app.services.user import UserService
+from app.schemas.user import UserSchemeSignUpAuth0RequestScheme
 from app.utils.exceptions.user import (
     DecodeUserTokenError,
     UserNotFoundException,
@@ -95,16 +96,31 @@ class GenericAuthService:
         db: AsyncSession = Depends(get_async_session),
     ) -> User:
         token = credentials.credentials
-        async with UserService(db) as service:
-            if token_data := JWTService.decode_token(token=token):
-                email = token_data.email
-                user = await service.get_user_by_attributes(email=email)
-            elif token_data := Auth0Service.decode_token(token=token):
-                email = token_data.email
-                try:
-                    user = await service.get_user_by_attributes(email=email)
-                except UserNotFoundException:
-                    user = await service.create_and_get_auth0_user(email=email)
-            else:
-                raise DecodeUserTokenError()
-            return user
+        ur = UserRepository(session=db)
+        if token_data := JWTService.decode_token(token=token):
+            email = token_data.email
+            user = await ur.get_user_by_attributes(email=email)
+        elif token_data := Auth0Service.decode_token(token=token):
+            email = token_data.email
+            try:
+                user = await ur.get_user_by_attributes(email=email)
+            except UserNotFoundException:
+                scheme = UserSchemeSignUpAuth0RequestScheme(email=email)
+                user = await ur.create_user(scheme=scheme)
+        else:
+            raise DecodeUserTokenError()
+        return user
+
+        # async with UserService(db) as service:
+        #     if token_data := JWTService.decode_token(token=token):
+        #         email = token_data.email
+        #         user = await service.get_user_by_attributes(email=email)
+        #     elif token_data := Auth0Service.decode_token(token=token):
+        #         email = token_data.email
+        #         try:
+        #             user = await service.get_user_by_attributes(email=email)
+        #         except UserNotFoundException:
+        #             user = await service.create_and_get_auth0_user(email=email)
+        #     else:
+        #         raise DecodeUserTokenError()
+        #     return user

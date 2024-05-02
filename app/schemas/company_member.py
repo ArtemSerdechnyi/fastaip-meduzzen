@@ -1,24 +1,22 @@
+from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict
 
-from app.db.models import CompanyRole
-from app.schemas.company import _CompanyIdSchemeMixin, _CompanyNameSchemeMixin
-from app.schemas.user import _UserEmailSchemeMixin, _UserIDSchemeMixin
+from app.schemas.company import (
+    CompanyDetailResponseScheme,
+)
+from app.schemas.user import (
+    UserSchemeDetailResponseScheme,
+)
 
 
-class _BaseCompanyMember(BaseModel):
-    pass
-
-
-class _CompanyMemberRoleSchemeMixin:
-    role: str
-
-
-class CompanyMemberDetailResponseScheme(
-    _CompanyIdSchemeMixin, _UserIDSchemeMixin, _BaseCompanyMember
-):
+class CompanyMemberDetailResponseScheme(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    role: CompanyRole
+    company_id: UUID
+    user_id: UUID
+    role: str
+    is_active: bool
 
 
 class CompanyListMemberDetailResponseScheme(BaseModel):
@@ -28,12 +26,13 @@ class CompanyListMemberDetailResponseScheme(BaseModel):
 
 
 class NestedCompanyMemberDetailResponseScheme(
-    _UserEmailSchemeMixin,
-    _CompanyNameSchemeMixin,
-    _CompanyMemberRoleSchemeMixin,
     BaseModel,
 ):
     model_config = ConfigDict(from_attributes=True)
+
+    user: UserSchemeDetailResponseScheme
+    company: CompanyDetailResponseScheme
+    role: str
 
 
 class ListNestedCompanyMemberDetailResponseScheme(BaseModel):

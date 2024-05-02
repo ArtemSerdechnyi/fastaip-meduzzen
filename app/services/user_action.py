@@ -1,13 +1,13 @@
 from uuid import UUID
 
-from sqlalchemy import and_, insert, select, update
 
 from app.db.models import (
-    CompanyRequest,
     CompanyRequestStatus,
     User,
-    UserRequest,
 )
+from app.repositories.company_member import CompanyMemberRepository
+from app.repositories.company_request import CompanyRequestRepository
+from app.repositories.user_request import UserRequestRepository
 from app.schemas.company_member import CompanyMemberDetailResponseScheme
 from app.schemas.company_request import (
     CompanyRequestDetailResponseScheme,
@@ -16,16 +16,20 @@ from app.schemas.company_request import (
 from app.schemas.user_request import (
     UserRequestDetailResponseScheme,
     UserRequestListDetailResponseScheme,
+    UserRequestCreateScheme,
 )
 from app.services.base import Service
-from app.services.company_member import CompanyMemberService
-from app.services.company_request import CompanyRequestService
-from app.utils.exceptions.company import CompanyRequestNotFoundException
 from app.utils.validators import UserValidator
 
 
 class UserActionService(Service):
     validator = UserValidator()
+
+    def __init__(self, session):
+        self.company_request_repository = CompanyRequestRepository(session)
+        self.user_request_repository = UserRequestRepository(session)
+        self.company_member_repository = CompanyMemberRepository(session)
+        super().__init__(session)
 
     @validator.validate_check_user_not_in_company
     @validator.validate_user_request_non_existing
@@ -33,116 +37,70 @@ class UserActionService(Service):
     async def create_user_request(
         self, company_id: UUID, user: User
     ) -> UserRequestDetailResponseScheme:
-        query = (
-            insert(UserRequest)
-            .values(company_id=company_id, user_id=user.user_id)
-            .returning(UserRequest)
+        scheme = UserRequestCreateScheme(
+            company_id=company_id, user_id=user.user_id
         )
-
-        result = await self.session.execute(query)
-        request = result.scalar()
-        return UserRequestDetailResponseScheme.from_orm(request)
+        user_request = await self.user_request_repository.create_user_request(
+            scheme=scheme
+        )
+        return UserRequestDetailResponseScheme.from_orm(user_request)
 
     async def cancel_user_request(self, request_id: UUID, user: User):
-        query = (
-            update(UserRequest)
-            .where(
-                and_(
-                    UserRequest.request_id == request_id,
-                    UserRequest.user_id == user.user_id,
-                    UserRequest.is_active == True,
-                )
+        user_request = (
+            await self.user_request_repository.inactive_user_request(
+                request_id=request_id, user_id=user.user_id
             )
-            .values(is_active=False)
-            .returning(UserRequest)
         )
-        result = await self.session.execute(query)
-        request = result.scalar()
-        return UserRequestDetailResponseScheme.from_orm(request)
+        return UserRequestDetailResponseScheme.from_orm(user_request)
 
     async def list_user_requests(self, user: User, page: int, limit: int):
-        query = select(UserRequest).where(UserRequest.user_id == user.user_id)
-        query = self.apply_pagination(query=query, page=page, limit=limit)
-
-        result = await self.session.execute(query)
-        raw_requests = result.scalars().all()
+        raw_requests = await self.user_request_repository.get_user_requests_list_by_attributes(
+            page=page, limit=limit, user_id=user.user_id
+        )
         requests = [
             UserRequestDetailResponseScheme.from_orm(request)
             for request in raw_requests
         ]
         return UserRequestListDetailResponseScheme(requests=requests)
 
-    async def list_user_invitations(self, user: User, page: int, limit: int):
-        query = select(CompanyRequest).where(
-            and_(
-                CompanyRequest.user_id == user.user_id,
-                CompanyRequest.status == CompanyRequestStatus.pending.value,
-                CompanyRequest.is_active == True,
-            )
+    async def list_company_requests_for_user(
+        self, user: User, page: int, limit: int
+    ):
+        raw_invitations = await self.company_request_repository.get_company_requests_list_by_attributes(
+            page=page, limit=limit, user_id=user.user_id
         )
-        query = self.apply_pagination(query, page, limit)
-        result = await self.session.execute(query)
-        raw_requests = result.scalars().all()
-        requests = [
-            CompanyRequestDetailResponseScheme.from_orm(request)
-            for request in raw_requests
+        invitations = [
+            CompanyRequestDetailResponseScheme.from_orm(invitation)
+            for invitation in raw_invitations
         ]
-        return CompanyRequestListDetailResponseScheme(requests=requests)
+        return CompanyRequestListDetailResponseScheme(requests=invitations)
 
     @validator.validate_company_invitation
-    async def accept_invitation(
+    async def accept_company_request(
         self, request_id: UUID, user: User
-    ) -> CompanyRequestDetailResponseScheme:
-        pending_status = CompanyRequestStatus.pending.value
-
-        query = select(CompanyRequest).where(
-            and_(
-                CompanyRequest.request_id == request_id,
-                CompanyRequest.user_id == user.user_id,
-                CompanyRequest.status == pending_status,
-                CompanyRequest.is_active == True,
-            )
-        )
-
-        result = await self.session.execute(query)
-        company_request = result.scalar()
-        if not company_request:
-            raise CompanyRequestNotFoundException(
-                request_id=request_id, user_id=user.user_id
-            )
-
-        cms = CompanyMemberService(session=self.session)
-
-        # add user to company
-        await cms._add_user_to_company(
-            company_id=company_request.company_id,
-            user_id=user.user_id,
-        )
-
-        # update company request status
-        crs = CompanyRequestService(session=self.session)
+    ) -> CompanyMemberDetailResponseScheme:
         accept_status = CompanyRequestStatus.accepted.value
-        request = await crs._update_company_request_status(
-            request_id=request_id,
-            status=accept_status,
+        company_request = await self.company_request_repository.update_company_request_status(
+            request_id=request_id, status=accept_status
         )
-        return CompanyRequestDetailResponseScheme.from_orm(request)
+        raw_member = await self.company_member_repository.add_user_to_company(
+            company_id=company_request.company_id, user_id=user.user_id
+        )
+        return CompanyMemberDetailResponseScheme.from_orm(raw_member)
 
     @validator.validate_company_invitation
     async def reject_invitation(self, request_id: UUID, user: User):
-        status = CompanyRequestStatus.denied.value
-        crs = CompanyRequestService(session=self.session)
-        request = await crs._update_company_request_status(
-            request_id=request_id,
-            status=status,
+        denied_status = CompanyRequestStatus.denied.value
+        user_request = await self.company_request_repository.update_company_request_status(
+            request_id=request_id, status=denied_status
         )
-        return CompanyRequestDetailResponseScheme.from_orm(request)
+        return CompanyRequestDetailResponseScheme.from_orm(user_request)
 
     @validator.validate_user_leave_from_company
     async def leave_company(self, company_id: UUID, user: User):
-        cms = CompanyMemberService(session=self.session)
-        member = await cms._remove_user_from_company(
-            company_id=company_id,
-            user_id=user.user_id,
+        company_member = (
+            await self.company_member_repository.remove_user_from_company(
+                company_id=company_id, user_id=user.user_id
+            )
         )
-        return CompanyMemberDetailResponseScheme.from_orm(member)
+        return CompanyMemberDetailResponseScheme.from_orm(company_member)

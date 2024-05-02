@@ -16,7 +16,6 @@ from app.schemas.company import (
 from app.schemas.company_request import CompanyRequestDetailResponseScheme
 from app.schemas.user_request import UserRequestDetailResponseScheme
 from app.services.company import CompanyService
-from app.services.company_action import CompanyActionService
 from app.utils.exceptions.user import UserRequestNotFoundException
 
 user_data = [
@@ -105,7 +104,7 @@ async def test_create_company_user_invite(company_action_service):
     )
     user = user.scalar()
 
-    company_request = await company_action_service.create_company_user_invite(
+    company_request = await company_action_service.create_company_request(
         user_id=user.user_id, company_id=company.company_id, owner=owner
     )
 
@@ -122,7 +121,7 @@ async def test_create_company_user_invite(company_action_service):
         error_owner = error_owner.scalar()
 
         company_error_request = (
-            await company_action_service.create_company_user_invite(
+            await company_action_service.create_company_request(
                 user_id=user.user_id,
                 company_id=company.company_id,
                 owner=error_owner,
@@ -154,11 +153,11 @@ async def test_user_accept_company_invitation(user_action_service):
             select(User).where(User.username == "user3")
         )
         error_user = error_user.scalar()
-        await user_action_service.accept_invitation(
+        await user_action_service.accept_company_request(
             request_id=company_request.request_id, user=error_user
         )
 
-    accept_company_request = await user_action_service.accept_invitation(
+    accept_company_request = await user_action_service.accept_company_request(
         request_id=company_request.request_id, user=user
     )
     assert isinstance(
@@ -170,7 +169,7 @@ async def test_user_accept_company_invitation(user_action_service):
 
     # invite is exist check error
     with pytest.raises(PermissionError):
-        await user_action_service.accept_invitation(
+        await user_action_service.accept_company_request(
             request_id=company_request.request_id, user=user
         )
 
