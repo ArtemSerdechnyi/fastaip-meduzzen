@@ -1,12 +1,11 @@
 from uuid import UUID
 
+from sqlalchemy import and_, insert, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import update, insert, and_
 from sqlalchemy.orm import joinedload
 
-
-from app.db.models import CompanyMember, Company, User
+from app.db.models import Company, CompanyMember, User
 from app.utils.exceptions.company import CompanyMemberNotFoundException
 
 

@@ -2,10 +2,8 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User
-from app.db.postgres import get_async_session
 from app.schemas.auth import OAuth2RequestFormScheme
 from app.schemas.user import (
     UserSchemeDetailResponseScheme,

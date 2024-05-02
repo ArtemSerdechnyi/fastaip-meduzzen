@@ -1,16 +1,15 @@
 from uuid import UUID
 
-
 from app.db.models import (
     User,
 )
 from app.repositories.company import CompanyRepository
 from app.schemas.company import (
     CompanyCreateRequestScheme,
+    CompanyCreateScheme,
     CompanyDetailResponseScheme,
     CompanyListResponseScheme,
     CompanyUpdateRequestScheme,
-    CompanyCreateScheme,
 )
 from app.services.base import Service
 

@@ -1,9 +1,8 @@
 from uuid import UUID
 
+from sqlalchemy import and_, insert, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import update, insert, and_
-
 
 from app.db.models import CompanyRequest
 from app.schemas.company_request import CompanyRequestCreateScheme

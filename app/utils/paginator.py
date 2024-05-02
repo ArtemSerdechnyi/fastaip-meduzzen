@@ -1,6 +1,6 @@
 from typing import Type
 
-from sqlalchemy import select, BinaryExpression
+from sqlalchemy import BinaryExpression, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Base

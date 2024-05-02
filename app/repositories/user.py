@@ -1,16 +1,15 @@
 from uuid import UUID
 
-from sqlalchemy import select, and_, insert, update
+from sqlalchemy import and_, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User
 from app.schemas.user import (
-    UserSchemeSignUpRequestScheme,
     UserSchemeSignUpAuth0RequestScheme,
+    UserSchemeSignUpRequestScheme,
     UserUpdateRequestScheme,
 )
 from app.utils.exceptions.user import UserNotFoundException
-
 from app.utils.paginator import Paginator
 from app.utils.user import PasswordManager
 

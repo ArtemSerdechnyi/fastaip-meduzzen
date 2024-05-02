@@ -3,12 +3,12 @@ from functools import wraps
 from uuid import UUID
 
 from sqlalchemy import (
+    ClauseElement,
     Select,
     and_,
     exists,
     not_,
     select,
-    ClauseElement,
 )
 
 from app.db.models import (

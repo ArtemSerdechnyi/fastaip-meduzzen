@@ -1,6 +1,5 @@
 from uuid import UUID
 
-
 from app.db.models import (
     CompanyRequestStatus,
     User,
@@ -15,9 +14,9 @@ from app.schemas.company_member import (
     NestedCompanyMemberDetailResponseScheme,
 )
 from app.schemas.company_request import (
+    CompanyRequestCreateScheme,
     CompanyRequestDetailResponseScheme,
     CompanyRequestListDetailResponseScheme,
-    CompanyRequestCreateScheme,
 )
 from app.schemas.user_request import UserRequestDetailResponseScheme
 from app.services.base import Service

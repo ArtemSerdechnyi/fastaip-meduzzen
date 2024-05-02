@@ -1,6 +1,5 @@
 from uuid import UUID
 
-
 from app.db.models import (
     CompanyRequestStatus,
     User,
@@ -14,9 +13,9 @@ from app.schemas.company_request import (
     CompanyRequestListDetailResponseScheme,
 )
 from app.schemas.user_request import (
+    UserRequestCreateScheme,
     UserRequestDetailResponseScheme,
     UserRequestListDetailResponseScheme,
-    UserRequestCreateScheme,
 )
 from app.services.base import Service
 from app.utils.validators import UserValidator
