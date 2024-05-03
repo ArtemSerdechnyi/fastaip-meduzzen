@@ -44,7 +44,7 @@ class CompanyActionService(Service):
             user_id=user_id, company_id=company_id
         )
         company_request = (
-            self.company_request_repository.create_company_request(
+            await self.company_request_repository.create_company_request(
                 scheme=scheme
             )
         )
