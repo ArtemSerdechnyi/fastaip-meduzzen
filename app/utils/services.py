@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.postgres import get_async_session
 from app.services.company import CompanyService
+from app.services.company_action import CompanyActionService
 from app.services.user import UserService
 from app.services.user_action import UserActionService
-from app.services.company_action import CompanyActionService
 
 
 async def get_user_service(db: AsyncSession = Depends(get_async_session)):
