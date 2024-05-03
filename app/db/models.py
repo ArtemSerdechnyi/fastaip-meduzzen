@@ -37,6 +37,7 @@ class CompanyRequestStatus(str, enum.Enum):
 
 class CompanyRole(str, enum.Enum):
     member = "member"
+    admin = "admin"
 
 
 class User(Base):

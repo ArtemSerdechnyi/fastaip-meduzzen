@@ -146,3 +146,22 @@ async def get_company_users_request(
         limit=limit,
     )
     return invitations
+
+
+@company_action_router.patch("/{company_id}/appoint/{user_id}")
+async def appoint_administrator(
+    service: Annotated[
+        CompanyActionService, Depends(get_company_action_service)
+    ],
+    owner: Annotated[
+        User, Depends(GenericAuthService.get_user_from_any_token)
+    ],
+    company_id: UUID,
+    user_id: UUID,
+) -> CompanyMemberDetailResponseScheme:
+    member = await service.appoint_administrator(
+        company_id=company_id,
+        user_id=user_id,
+        owner=owner,
+    )
+    return member
