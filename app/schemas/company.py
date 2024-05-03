@@ -1,78 +1,36 @@
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 from app.utils.schemas import optionalise_fields
 
 
-class _BaseCompany(BaseModel):
-    pass
-
-
-class _CompanyIdSchemeMixin:
-    company_id: UUID
-
-
-class _CompanyNameSchemeMixin:
+class BaseCompanyScheme(BaseModel):
     name: str
 
 
-class _CompanyDescriptionSchemeMixin:
-    description: Optional[str] = None
+class CompanyCreateRequestScheme(BaseCompanyScheme):
+    description: Optional[str]
 
 
-class _CompanyOwnerSchemeMixin:
+class CompanyCreateScheme(CompanyCreateRequestScheme):
     owner_id: UUID
 
 
-class _CompanyVisibilitySchemeMixin:
-    visibility: bool = Field(default=True)
+class CompanyDetailResponseScheme(CompanyCreateRequestScheme):
+    model_config = ConfigDict(from_attributes=True)
 
-
-# used schemas
-
-
-class CompanyCreateRequestScheme(
-    _CompanyNameSchemeMixin,
-    _CompanyDescriptionSchemeMixin,
-    _CompanyVisibilitySchemeMixin,
-    _BaseCompany,
-):
-    pass
+    visibility: bool
 
 
 @optionalise_fields
-class CompanyDetailResponseScheme(
-    _CompanyNameSchemeMixin,
-    _CompanyDescriptionSchemeMixin,
-    _CompanyOwnerSchemeMixin,
-    _BaseCompany,
-):
+class CompanyUpdateRequestScheme(CompanyCreateRequestScheme):
+    visibility: Optional[bool]
+    is_active: Optional[bool]
+
+
+class CompanyListResponseScheme(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-
-@optionalise_fields
-class UserCompanyDetailResponseScheme(
-    _CompanyIdSchemeMixin,
-    _CompanyVisibilitySchemeMixin,
-    CompanyDetailResponseScheme,
-):
-    model_config = ConfigDict(from_attributes=True)
-
-
-@optionalise_fields
-class CompanyUpdateRequestScheme(
-    _CompanyNameSchemeMixin,
-    _CompanyDescriptionSchemeMixin,
-    _BaseCompany,
-):
-    pass
-
-
-class CompanyListResponseScheme(_BaseCompany):
-    model_config = ConfigDict(from_attributes=True)
-
-    companies: list[
-        CompanyDetailResponseScheme | UserCompanyDetailResponseScheme
-    ]
+    companies: list[CompanyDetailResponseScheme]

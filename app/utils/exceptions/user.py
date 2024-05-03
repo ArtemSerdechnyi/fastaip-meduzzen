@@ -18,3 +18,9 @@ class PasswordVerificationError(Exception):
 class DecodeUserTokenError(Exception):
     def __init__(self, message="User token is not decoded."):
         super().__init__(message)
+
+
+class UserRequestNotFoundException(Exception):
+    def __init__(self, message="User request not found.", **kwargs):
+        self.message = f"{message} Kwargs: {kwargs}" if kwargs else message
+        super().__init__(self.message)

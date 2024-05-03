@@ -1,40 +1,26 @@
-import uuid
-from abc import ABC
+from uuid import UUID
 
-from fastapi.security import HTTPBearer
-from pydantic import BaseModel, ConfigDict, EmailStr, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    computed_field,
+    model_validator,
+)
 from typing_extensions import Optional, Self
 
-from app.utils.generics import Name, Password
+from app.utils.generics import Password
 from app.utils.schemas import optionalise_fields
+from app.utils.user import PasswordManager
 
 
-class _UserBaseScheme(BaseModel, ABC):
-    pass
-
-
-class _UserIDSchemeMixin:
-    user_id: uuid.UUID
-
-
-class _UsernameSchemeMixin:
-    username: Name
-
-
-class _UserAllNamesSchemeMixin(_UsernameSchemeMixin):
-    first_name: Optional[Name]
-    last_name: Optional[Name]
-
-
-class _UserEmailSchemeMixin:
+class BaseUserScheme(BaseModel):
     email: EmailStr
 
 
-class _UserPasswordSchemeMixin:
+class UserPasswordsScheme(BaseModel):
     password: Password
-
-
-class _UserPasswordConfirmSchemeMixin(_UserPasswordSchemeMixin):
     password_confirm: Password
 
     @model_validator(mode="after")
@@ -46,68 +32,39 @@ class _UserPasswordConfirmSchemeMixin(_UserPasswordSchemeMixin):
         return self
 
 
-# using schemas
+class UserSchemeDetailResponseScheme(BaseUserScheme):
+    model_config = ConfigDict(from_attributes=True)
+
+    user_id: UUID
+    is_active: Optional[bool]
+    username: Optional[str]
+    first_name: Optional[str]
+    last_name: Optional[str]
+
+
+class UserSchemeSignUpRequestScheme(BaseUserScheme):
+    passwords: UserPasswordsScheme = Field(exclude=True)
+
+    @computed_field
+    @property
+    def hashed_password(self) -> str:
+        return PasswordManager(self.passwords.password).hash
+
+
+class UserSchemeSignUpAuth0RequestScheme(BaseUserScheme):
+    pass
+
+
+class UserSchemeSignInRequestScheme(BaseUserScheme):
+    password: Password
 
 
 @optionalise_fields
-class UserDetailResponseScheme(
-    _UserIDSchemeMixin,
-    _UserAllNamesSchemeMixin,
-    _UserEmailSchemeMixin,
-    _UserBaseScheme,
-):
+class UserUpdateRequestScheme(UserSchemeDetailResponseScheme):
+    is_active: Optional[bool]
+
+
+class UsersListResponseScheme(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-
-class UserSignUpRequestScheme(
-    _UserPasswordConfirmSchemeMixin,
-    _UsernameSchemeMixin,
-    _UserEmailSchemeMixin,
-    _UserBaseScheme,
-):
-    password_confirm: Password
-
-
-class UserSignInRequestScheme(
-    _UserEmailSchemeMixin, _UserPasswordSchemeMixin, _UserBaseScheme
-):
-    pass
-
-
-@optionalise_fields
-class UserUpdateRequestScheme(
-    _UserAllNamesSchemeMixin,
-    _UserEmailSchemeMixin,
-    _UserPasswordConfirmSchemeMixin,
-    _UserBaseScheme,
-):
-    pass
-
-
-class UsersListResponseScheme(_UserBaseScheme):
-    model_config = ConfigDict(from_attributes=True)
-
-    users: list[UserDetailResponseScheme]
-
-
-class TokenUserDataScheme(_UserEmailSchemeMixin, BaseModel):
-    pass
-
-
-class OAuth2RequestFormScheme:
-    def __init__(self, email: EmailStr, password: Password):
-        self.email = email
-        self.password = password
-
-
-class Auth0UserScheme(_UserEmailSchemeMixin, _UserBaseScheme):
-    pass
-
-
-class UserHTTPBearer(HTTPBearer):
-    pass
-
-
-class UserTokenScheme(BaseModel):
-    access_token: str
-    token_type: str
+    users: list[UserSchemeDetailResponseScheme]

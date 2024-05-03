@@ -3,10 +3,14 @@ from logging import getLogger
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.utils.validators import BaseValidator
+
 logger = getLogger(__name__)
 
 
 class Service(ABC):
+    validator: BaseValidator  # service validator
+
     def __init__(self, session: AsyncSession):
         self.session = session
         self._queries = []
@@ -33,3 +37,15 @@ class Service(ABC):
 
     async def _add_query(self, query):
         self._queries.append(query)
+
+    @staticmethod
+    def apply_pagination[QueryAlchemy](
+        query: [QueryAlchemy], page: int, limit: int
+    ) -> [QueryAlchemy]:
+        if page < 1:
+            raise AttributeError(f"Page must be >= 1, page: {page}")
+        elif limit < 1:
+            raise AttributeError(f"Limit must be >= 1, limit: {limit}")
+        return query.limit(limit).offset(
+            page - 1 if page == 1 else (page - 1) * limit
+        )

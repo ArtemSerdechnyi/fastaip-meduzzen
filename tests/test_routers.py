@@ -1,7 +1,3 @@
-import pytest
-from httpx import AsyncClient
-
-
 async def test_health_check(ac):
     response = await ac.get("/")
     assert response.status_code == 200
