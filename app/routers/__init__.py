@@ -8,6 +8,7 @@ from app.routers import (
     health_check,
     user,
     user_action,
+    quiz,
 )
 
 __all__ = [
@@ -31,3 +32,6 @@ company.company_router.include_router(
 main_router.include_router(
     company.company_router, prefix="/company", tags=["company"]
 )
+
+# quiz routers
+main_router.include_router(quiz.quiz_router, prefix="/quiz", tags=["quiz"])

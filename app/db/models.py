@@ -2,7 +2,7 @@ import datetime
 import enum
 import uuid
 
-from sqlalchemy import Boolean, Column, Enum, ForeignKey, String
+from sqlalchemy import Boolean, Column, Enum, ForeignKey, String, Integer
 from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -96,6 +96,9 @@ class Company(Base):
     user_request = relationship(
         "UserRequest", back_populates="company", cascade="all, delete-orphan"
     )
+    quizzes = relationship(
+        "Quiz", back_populates="company", cascade="all, delete-orphan"
+    )
 
     __repr_cols_num = 2
     __repr_cols = ("visibility", "is_active")
@@ -124,6 +127,9 @@ class CompanyMember(Base):
 
     __repr_cols_num = 3
     __repr_cols = ("is_active",)
+
+
+# request models
 
 
 class CompanyRequest(Base):
@@ -186,3 +192,70 @@ class UserRequest(Base):
 
     __repr_cols_num = 4
     __repr_cols = ("is_active",)
+
+
+# quiz models
+
+
+class Quiz(Base):
+    __tablename__ = "quizzes"
+
+    quiz_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    company_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("companies.company_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    name = Column(String, nullable=False)
+    description = Column(String)
+    pass_rate = Column(Integer, default=0, nullable=False)
+    is_active = Column(Boolean(), default=True, nullable=False)
+
+    questions = relationship(
+        "Question", back_populates="quiz", cascade="all, delete-orphan"
+    )
+
+    company = relationship("Company", back_populates="quizzes")
+
+    __repr_cols_num = 3
+
+
+class Question(Base):
+    __tablename__ = "questions"
+
+    question_id = Column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    quiz_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("quizzes.quiz_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    text = Column(String, nullable=False)
+
+    answers = relationship(
+        "Answer", back_populates="question", cascade="all, delete-orphan"
+    )
+
+    quiz = relationship("Quiz", back_populates="questions")
+
+    __repr_cols_num = 3
+
+
+class Answer(Base):
+    __tablename__ = "answers"
+
+    answer_id = Column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    question_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("questions.question_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    text = Column(String, nullable=False)
+    is_correct = Column(Boolean, default=False, nullable=False)
+
+    question = relationship("Question", back_populates="answers")
+
+    __repr_cols_num = 4
