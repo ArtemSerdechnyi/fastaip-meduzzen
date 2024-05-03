@@ -6,9 +6,9 @@ from app.routers import (
     company,
     company_action,
     health_check,
+    quiz,
     user,
     user_action,
-    quiz,
 )
 
 __all__ = [

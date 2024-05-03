@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field, model_validator, ConfigDict
 from typing import List, Optional, Self
 from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class AnswerCreateScheme(BaseModel):

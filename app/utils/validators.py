@@ -8,21 +8,21 @@ from sqlalchemy import (
     and_,
     exists,
     not_,
-    select,
     or_,
+    select,
 )
 
 from app.db.models import (
+    Answer,
     Company,
     CompanyMember,
     CompanyRequest,
     CompanyRequestStatus,
+    CompanyRole,
+    Question,
+    Quiz,
     User,
     UserRequest,
-    CompanyRole,
-    Quiz,
-    Question,
-    Answer,
 )
 from app.schemas.quiz import QuizCreateRequestScheme
 

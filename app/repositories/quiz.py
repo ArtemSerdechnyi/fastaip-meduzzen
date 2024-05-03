@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from sqlalchemy import insert, select, update, and_
+from sqlalchemy import and_, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.db.models import Quiz, Question, Answer
+from app.db.models import Answer, Question, Quiz
 
 
 class QuizRepository:
@@ -24,7 +24,7 @@ class QuizRepository:
         self, company_id: UUID, page: int, limit: int
     ):
         query = (
-            select(Quiz,  Question, Answer)
+            select(Quiz, Question, Answer)
             .options(joinedload(Quiz.questions).joinedload(Question.answers))
             .where(and_(Quiz.company_id == company_id, Quiz.is_active == True))
         )

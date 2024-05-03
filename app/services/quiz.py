@@ -1,20 +1,17 @@
-from pprint import pprint
 from uuid import UUID
 
-from sqlalchemy import insert
-
-from app.db.models import User, Quiz
+from app.db.models import User
 from app.repositories.answer import AnswerRepository
 from app.repositories.question import QuestionRepository
 from app.repositories.quiz import QuizRepository
 from app.schemas.quiz import (
-    QuizCreateRequestScheme,
-    AnswerDetailScheme,
-    QuestionDetailScheme,
-    QuizDetailScheme,
     AnswerCreateScheme,
-    QuestionCreateScheme,
+    AnswerDetailScheme,
     ListQuizDetailScheme,
+    QuestionCreateScheme,
+    QuestionDetailScheme,
+    QuizCreateRequestScheme,
+    QuizDetailScheme,
 )
 from app.services.base import Service
 from app.utils.validators import QuizValidator
