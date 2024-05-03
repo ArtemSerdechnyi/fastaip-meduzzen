@@ -2,9 +2,9 @@ from uuid import UUID
 
 from app.db.models import (
     CompanyRequestStatus,
+    CompanyRole,
     User,
     UserRequestStatus,
-    CompanyRole,
 )
 from app.repositories.company_member import CompanyMemberRepository
 from app.repositories.company_request import CompanyRequestRepository

@@ -6,7 +6,6 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 
 from app.db.models import Company, CompanyMember, User
-from app.schemas.company_member import CompanyMemberDetailResponseScheme
 from app.utils.exceptions.company import CompanyMemberNotFoundException
 
 
