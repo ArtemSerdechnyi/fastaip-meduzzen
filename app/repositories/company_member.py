@@ -100,3 +100,25 @@ class CompanyMemberRepository:
         result = await self.session.execute(query)
         company_member = result.scalar()
         return company_member
+
+    async def change_member_role(
+        self, company_id: UUID, user_id: UUID, role: str
+    ) -> CompanyMember:
+        query = (
+            update(CompanyMember)
+            .where(
+                and_(
+                    CompanyMember.company_id == company_id,
+                    CompanyMember.user_id == user_id,
+                    CompanyMember.is_active == True,
+                )
+            )
+            .values(role=role)
+            .returning(CompanyMember)
+        )
+        result = await self.session.execute(query)
+        if company_member := result.scalar():
+            return company_member
+        raise CompanyMemberNotFoundException(
+            company_id=company_id, user_id=user_id
+        )

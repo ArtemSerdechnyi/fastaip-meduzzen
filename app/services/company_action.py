@@ -2,6 +2,7 @@ from uuid import UUID
 
 from app.db.models import (
     CompanyRequestStatus,
+    CompanyRole,
     User,
     UserRequestStatus,
 )
@@ -43,7 +44,7 @@ class CompanyActionService(Service):
             user_id=user_id, company_id=company_id
         )
         company_request = (
-            self.company_request_repository.create_company_request(
+            await self.company_request_repository.create_company_request(
                 scheme=scheme
             )
         )
@@ -132,3 +133,15 @@ class CompanyActionService(Service):
             )
         )
         return UserRequestDetailResponseScheme.from_orm(user_request)
+
+    @validator.validate_check_user_in_company
+    @validator.validate_user_exist_and_active_by_user_id
+    @validator.validate_company_id_by_owner
+    async def appoint_administrator(
+        self, company_id: UUID, user_id: UUID, owner: User
+    ) -> CompanyMemberDetailResponseScheme:
+        admin_role = CompanyRole.admin.value
+        raw_member = await self.company_member_repository.change_member_role(
+            company_id=company_id, user_id=user_id, role=admin_role
+        )
+        return CompanyMemberDetailResponseScheme.from_orm(raw_member)

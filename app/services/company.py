@@ -28,7 +28,9 @@ class CompanyService(Service):
         company_create_scheme = CompanyCreateScheme(
             owner_id=owner.user_id, **dump
         )
-        company = self.company_repository.create_company(company_create_scheme)
+        company = await self.company_repository.create_company(
+            company_create_scheme
+        )
         return CompanyDetailResponseScheme.from_orm(company)
 
     async def update_user_self_company(

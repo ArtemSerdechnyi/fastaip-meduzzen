@@ -14,6 +14,7 @@ class CompanyRequestCreateScheme(BaseModel):
 class CompanyRequestDetailResponseScheme(CompanyRequestCreateScheme):
     model_config = ConfigDict(from_attributes=True)
 
+    request_id: UUID
     status: str
 
 
