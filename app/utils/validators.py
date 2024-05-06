@@ -8,17 +8,23 @@ from sqlalchemy import (
     and_,
     exists,
     not_,
+    or_,
     select,
 )
 
 from app.db.models import (
+    Answer,
     Company,
     CompanyMember,
     CompanyRequest,
     CompanyRequestStatus,
+    CompanyRole,
+    Question,
+    Quiz,
     User,
     UserRequest,
 )
+from app.schemas.quiz import QuizCreateRequestScheme
 
 
 class BaseValidator(ABC):
@@ -30,8 +36,6 @@ class BaseValidator(ABC):
     def _build_where_not_exist_select_query(*args: ClauseElement) -> Select:
         return select(~exists().where(and_(*args)))
 
-
-class UserValidator(BaseValidator):
     def validate_exist_company_is_active(self, func):
         """
         Check company is exist and active.
@@ -59,6 +63,8 @@ class UserValidator(BaseValidator):
 
         return wrapper
 
+
+class UserValidator(BaseValidator):
     def validate_request_id_belongs_to_user(self, func):
         """
         Check request_id belongs to user.
@@ -448,6 +454,7 @@ class CompanyValidator(BaseValidator):
     def validate_check_user_in_company(self, func):
         """
         Validate that the user is member of the given company.
+
         Depends: company_id, user_id
         """
 
@@ -469,6 +476,310 @@ class CompanyValidator(BaseValidator):
                 raise PermissionError(
                     "Validation error. User is not a company member."
                 )
+            return await func(self_service, **kwargs)
+
+        return wrapper
+
+
+class QuizValidator(BaseValidator):
+    def validate_user_is_owner_or_admin_by_company_id(self, func):
+        """
+        Validate that the user is admin or owner of the given company by company_id.
+
+        Depends: company_id, user
+        """
+
+        @wraps(func)
+        async def wrapper(self_service, **kwargs):
+            company_id: UUID = kwargs["company_id"]
+            user: User = kwargs["user"]
+
+            admin_role = CompanyRole.admin.value
+
+            admin_check_query = self._build_where_exist_select_query(
+                CompanyMember.company_id == company_id,
+                CompanyMember.user_id == user.user_id,
+                CompanyMember.role == admin_role,
+                CompanyMember.is_active == True,
+            )
+            owner_check_query = self._build_where_exist_select_query(
+                Company.company_id == company_id,
+                Company.owner_id == user.user_id,
+            )
+
+            query = select(or_(owner_check_query, admin_check_query))
+
+            result = await self_service.session.execute(query)
+            exist = result.scalar()
+
+            if not exist:
+                raise PermissionError(
+                    "Validation error. User is not admin or owner."
+                )
+            return await func(self_service, **kwargs)
+
+        return wrapper
+
+    def validate_user_is_owner_or_admin_by_quiz_id(self, func):
+        """
+        Validate that the user is admin or owner of the given company by quiz_id.
+
+        Depends: quiz_id, user
+        """
+
+        @wraps(func)
+        async def wrapper(self_service, **kwargs):
+            quiz_id: UUID = kwargs["quiz_id"]
+            user: User = kwargs["user"]
+
+            admin_role = CompanyRole.admin.value
+
+            query = self._build_where_exist_select_query(
+                Quiz.quiz_id == quiz_id,
+                or_(
+                    and_(
+                        CompanyMember.company_id == Quiz.company_id,
+                        CompanyMember.user_id == user.user_id,
+                        CompanyMember.role == admin_role,
+                        CompanyMember.is_active == True,
+                    ),
+                    Company.owner_id == user.user_id,
+                ),
+                Company.is_active == True,
+            )
+
+            result = await self_service.session.execute(query)
+            exist = result.scalar()
+
+            if not exist:
+                raise PermissionError(
+                    "Validation error. User is not admin or owner."
+                )
+            return await func(self_service, **kwargs)
+
+        return wrapper
+
+    def validate_user_is_owner_or_admin_by_question_id(self, func):
+        """
+        Validate that the user is admin or owner of the given company by question_id.
+
+        Depends: question_id, user
+        """
+
+        @wraps(func)
+        async def wrapper(self_service, **kwargs):
+            question_id: UUID = kwargs["question_id"]
+            user: User = kwargs["user"]
+
+            admin_role = CompanyRole.admin.value
+
+            query = self._build_where_exist_select_query(
+                Question.question_id == question_id,
+                Quiz.quiz_id == Question.quiz_id,
+                or_(
+                    and_(
+                        CompanyMember.company_id == Quiz.company_id,
+                        CompanyMember.user_id == user.user_id,
+                        CompanyMember.role == admin_role,
+                        CompanyMember.is_active == True,
+                    ),
+                    Company.owner_id == user.user_id,
+                ),
+                Company.is_active == True,
+            )
+
+            result = await self_service.session.execute(query)
+            exist = result.scalar()
+
+            if not exist:
+                raise PermissionError(
+                    "Validation error. User is not admin or owner."
+                )
+            return await func(self_service, **kwargs)
+
+        return wrapper
+
+    def validate_user_is_owner_or_admin_by_answer_id(self, func):
+        """
+        Validate that the user is admin or owner of the given company by answer_id.
+
+        Depends: answer_id, user
+        """
+
+        @wraps(func)
+        async def wrapper(self_service, **kwargs):
+            answer_id: UUID = kwargs["answer_id"]
+            user: User = kwargs["user"]
+
+            admin_role = CompanyRole.admin.value
+
+            query = self._build_where_exist_select_query(
+                Answer.answer_id == answer_id,
+                Question.question_id == Answer.question_id,
+                Quiz.quiz_id == Question.quiz_id,
+                Quiz.company_id == Company.company_id,
+                or_(
+                    and_(
+                        CompanyMember.company_id == Quiz.company_id,
+                        CompanyMember.user_id == user.user_id,
+                        CompanyMember.role == admin_role,
+                        CompanyMember.is_active == True,
+                    ),
+                    Company.owner_id == user.user_id,
+                ),
+                Company.is_active == True,
+            )
+
+            result = await self_service.session.execute(query)
+            exist = result.scalar()
+
+            if not exist:
+                raise PermissionError(
+                    "Validation error. User is not admin or owner."
+                )
+            return await func(self_service, **kwargs)
+
+        return wrapper
+
+    def validate_quiz_company_and_name_unique(self, func):
+        """
+        Validate that a quiz with the same name does not already exist in the company.
+
+        Depends: company_id, scheme
+        """
+
+        @wraps(func)
+        async def wrapper(self_service, **kwargs):
+            company_id: UUID = kwargs["company_id"]
+            quiz_scheme: QuizCreateRequestScheme = kwargs["scheme"]
+
+            quiz_name = quiz_scheme.name
+
+            query = self._build_where_not_exist_select_query(
+                Quiz.company_id == company_id,
+                Quiz.name == quiz_name,
+                Quiz.is_active == True,
+            )
+
+            result = await self_service.session.execute(query)
+            exist = result.scalar()
+
+            if not exist:
+                raise PermissionError("Validation error. Quiz is exist.")
+            return await func(self_service, **kwargs)
+
+        return wrapper
+
+    def validate_user_is_company_member_or_owner_by_quiz_id(self, func):
+        """
+        Validate that the user is a member of the company or owner company.
+
+
+        Depends: company_id, scheme
+        """
+
+        @wraps(func)
+        async def wrapper(self_service, **kwargs):
+            quiz_id: UUID = kwargs["quiz_id"]
+            user: User = kwargs["user"]
+
+            query = self._build_where_exist_select_query(
+                Quiz.quiz_id == quiz_id,
+                Quiz.is_active == True,
+                or_(
+                    and_(
+                        Quiz.company_id == CompanyMember.company_id,
+                        CompanyMember.user_id == user.user_id,
+                        CompanyMember.is_active == True,
+                    ),
+                    Company.owner_id == user.user_id,
+                ),
+                Company.is_active == True,
+            )
+
+            result = await self_service.session.execute(query)
+            exist = result.scalar()
+
+            if not exist:
+                raise PermissionError("Validation error.")
+            return await func(self_service, **kwargs)
+
+        return wrapper
+
+    def validate_quiz_exist_and_active_by_quiz_id(self, func):
+        """
+        Validate quiz is exist and active by quiz_id.
+
+        Depends: quiz_id
+        """
+
+        @wraps(func)
+        async def wrapper(self_service, **kwargs):
+            question_id: UUID = kwargs["quiz_id"]
+
+            query = self._build_where_exist_select_query(
+                Quiz.quiz_id == question_id,
+                Quiz.is_active == True,
+            )
+
+            result = await self_service.session.execute(query)
+            exist = result.scalar()
+
+            if not exist:
+                raise PermissionError("Validation error. Quiz dont exist.")
+            return await func(self_service, **kwargs)
+
+        return wrapper
+
+    def validate_quiz_exist_and_active_by_question_id(self, func):
+        """
+        Validate quiz is exist and active by question_id.
+
+        Depends: question_id
+        """
+
+        @wraps(func)
+        async def wrapper(self_service, **kwargs):
+            question_id: UUID = kwargs["question_id"]
+
+            query = self._build_where_exist_select_query(
+                Question.question_id == question_id,
+                Quiz.quiz_id == Question.quiz_id,
+                Quiz.is_active == True,
+            )
+
+            result = await self_service.session.execute(query)
+            exist = result.scalar()
+
+            if not exist:
+                raise PermissionError("Validation error. Quiz dont exist.")
+            return await func(self_service, **kwargs)
+
+        return wrapper
+
+    def validate_quiz_exist_and_active_by_answer_id(self, func):
+        """
+        Validate that the quiz associated with the given answer_id exists and is active.
+
+        Depends: answer_id
+        """
+
+        @wraps(func)
+        async def wrapper(self_service, **kwargs):
+            answer_id: UUID = kwargs["answer_id"]
+
+            query = self._build_where_exist_select_query(
+                Answer.answer_id == answer_id,
+                Question.question_id == Answer.question_id,
+                Quiz.quiz_id == Question.quiz_id,
+                Quiz.is_active == True,
+            )
+
+            result = await self_service.session.execute(query)
+            exist = result.scalar()
+
+            if not exist:
+                raise PermissionError("Validation error. Quiz dont exist.")
             return await func(self_service, **kwargs)
 
         return wrapper

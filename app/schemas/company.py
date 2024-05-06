@@ -21,6 +21,7 @@ class CompanyCreateScheme(CompanyCreateRequestScheme):
 class CompanyDetailResponseScheme(CompanyCreateRequestScheme):
     model_config = ConfigDict(from_attributes=True)
 
+    company_id: UUID
     visibility: bool
 
 
