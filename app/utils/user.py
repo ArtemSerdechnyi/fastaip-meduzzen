@@ -5,10 +5,6 @@ from app.core.constants import USERS_PAGE_LIMIT
 from app.utils.generics import Password
 
 
-def get_users_page_limit() -> int:
-    return USERS_PAGE_LIMIT
-
-
 class PasswordManager:
     _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     _hashed_password = None
