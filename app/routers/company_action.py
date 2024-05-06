@@ -3,7 +3,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from app.core.constants import COMPANIES_MEMBERS_PAGE_LIMIT, COMPANIES_USERS_REQUEST_PAGE_LIMIT
+from app.core.constants import (
+    COMPANIES_MEMBERS_PAGE_LIMIT,
+    COMPANIES_USERS_REQUEST_PAGE_LIMIT,
+)
 from app.db.models import CompanyRequestStatus, CompanyRole, User
 from app.schemas.company_member import (
     CompanyMemberDetailResponseScheme,
@@ -16,7 +19,6 @@ from app.schemas.company_request import (
 from app.schemas.user_request import UserRequestDetailResponseScheme
 from app.services.auth import GenericAuthService
 from app.services.company_action import CompanyActionService
-
 from app.utils.services import get_company_action_service
 
 company_action_router = APIRouter()

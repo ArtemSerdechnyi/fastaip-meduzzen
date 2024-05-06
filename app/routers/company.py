@@ -13,7 +13,6 @@ from app.schemas.company import (
 )
 from app.services.auth import GenericAuthService
 from app.services.company import CompanyService
-
 from app.utils.services import get_company_service
 
 company_router = APIRouter()
@@ -48,7 +47,7 @@ async def my_companies(
         User, Depends(GenericAuthService.get_user_from_any_token)
     ],
     page: int = 1,
-    limit: int =COMPANIES_PAGE_LIMIT,
+    limit: int = COMPANIES_PAGE_LIMIT,
 ) -> CompanyListResponseScheme:
     companies = await service.get_user_self_companies(
         page=page, limit=limit, user=owner
