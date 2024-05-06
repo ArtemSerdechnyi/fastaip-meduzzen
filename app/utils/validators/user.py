@@ -4,12 +4,12 @@ from uuid import UUID
 from sqlalchemy import not_
 
 from app.db.models import (
-    User,
-    UserRequest,
+    Company,
     CompanyMember,
     CompanyRequest,
     CompanyRequestStatus,
-    Company,
+    User,
+    UserRequest,
 )
 from app.utils.validators import BaseValidator
 

@@ -1,7 +1,6 @@
-from select import select
 from uuid import UUID
 
-from sqlalchemy import insert, delete
+from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import UserQuizAnswers

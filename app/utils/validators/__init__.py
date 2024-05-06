@@ -2,7 +2,7 @@ from abc import ABC
 from functools import wraps
 from uuid import UUID
 
-from sqlalchemy import ClauseElement, Select, select, exists, and_
+from sqlalchemy import ClauseElement, Select, and_, exists, select
 from sqlalchemy.sql._typing import _ColumnExpressionArgument
 
 from app.db.models import Company
@@ -10,11 +10,15 @@ from app.db.models import Company
 
 class BaseValidator(ABC):
     @staticmethod
-    def _build_where_exist_select_query(*args: _ColumnExpressionArgument[bool]) -> Select:
+    def _build_where_exist_select_query(
+        *args: _ColumnExpressionArgument[bool],
+    ) -> Select:
         return select(exists().where(and_(*args)))
 
     @staticmethod
-    def _build_where_not_exist_select_query(*args: _ColumnExpressionArgument[bool]) -> Select:
+    def _build_where_not_exist_select_query(
+        *args: _ColumnExpressionArgument[bool],
+    ) -> Select:
         return select(~exists().where(and_(*args)))
 
     def validate_exist_company_is_active(self, func):

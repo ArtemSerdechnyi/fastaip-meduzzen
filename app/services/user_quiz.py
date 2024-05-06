@@ -1,14 +1,11 @@
 from uuid import UUID
 
-from app.db.models import User, Quiz
+from app.db.models import User
 from app.repositories.company_member import CompanyMemberRepository
-from app.repositories.question import QuestionRepository
 from app.repositories.quiz import QuizRepository
-
 from app.repositories.user_quiz import UserQuizRepository
 from app.repositories.user_quiz_answers import UserQuizAnswersRepository
-from app.schemas.quiz import QuizDetailScheme, QuestionDetailScheme
-
+from app.schemas.quiz import QuizDetailScheme
 from app.schemas.user_quiz import UserQuizCreateScheme, UserQuizDetailScheme
 from app.services.base import Service
 from app.utils.validators.quiz import QuizAnswerValidator

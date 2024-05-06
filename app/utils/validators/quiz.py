@@ -2,16 +2,16 @@ from abc import ABC
 from functools import wraps
 from uuid import UUID
 
-from sqlalchemy import select, or_, and_, exists, func, all_, not_, any_
+from sqlalchemy import and_, exists, func, or_, select
 
 from app.db.models import (
-    User,
-    CompanyRole,
-    CompanyMember,
-    Company,
-    Quiz,
-    Question,
     Answer,
+    Company,
+    CompanyMember,
+    CompanyRole,
+    Question,
+    Quiz,
+    User,
     UserQuiz,
 )
 from app.schemas.quiz import QuizCreateRequestScheme
@@ -457,7 +457,7 @@ class QuizAnswerValidator(AbstractQuizValidator):
 
             if not exist:
                 error_message = (
-                    f"Validation error. Member dont have any user_quiz."
+                    "Validation error. Member dont have any user_quiz."
                 )
                 raise PermissionError(error_message)
 
@@ -487,7 +487,7 @@ class QuizAnswerValidator(AbstractQuizValidator):
 
             if not exist:
                 error_message = (
-                    f"Validation error. User dont have any user_quiz."
+                    "Validation error. User dont have any user_quiz."
                 )
                 raise PermissionError(error_message)
 

@@ -2,12 +2,12 @@ from functools import wraps
 from uuid import UUID
 
 from app.db.models import (
-    User,
     Company,
-    CompanyRequest,
-    UserRequest,
-    CompanyRequestStatus,
     CompanyMember,
+    CompanyRequest,
+    CompanyRequestStatus,
+    User,
+    UserRequest,
 )
 from app.utils.validators import BaseValidator
 

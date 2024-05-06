@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from sqlalchemy import insert, select, func, and_
+from sqlalchemy import and_, func, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.db.models import UserQuiz, Quiz
+from app.db.models import Quiz, UserQuiz
 
 
 class UserQuizRepository:
