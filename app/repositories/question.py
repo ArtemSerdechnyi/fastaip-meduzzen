@@ -61,6 +61,3 @@ class QuestionRepository:
         result = await self.session.execute(query)
         question = result.scalar()
         return question
-
-    async def get_question_quiz_count(self, quiz_id):
-        query = select(Question)

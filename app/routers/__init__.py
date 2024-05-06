@@ -34,5 +34,5 @@ main_router.include_router(
 )
 
 # quiz routers
-quiz.quiz_router.include_router(quiz.user_quiz_router, prefix="/user")
+quiz.quiz_router.include_router(quiz.user_quiz_router, prefix="/answer")
 main_router.include_router(quiz.quiz_router, prefix="/quiz", tags=["quiz"])
