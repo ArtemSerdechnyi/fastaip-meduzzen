@@ -6,7 +6,11 @@ from app.repositories.quiz import QuizRepository
 from app.repositories.user_quiz import UserQuizRepository
 from app.repositories.user_quiz_answers import UserQuizAnswersRepository
 from app.schemas.quiz import QuizDetailScheme
-from app.schemas.user_quiz import UserQuizCreateScheme, UserQuizDetailScheme, UserQuizAverageScoreScheme
+from app.schemas.user_quiz import (
+    UserQuizAverageScoreScheme,
+    UserQuizCreateScheme,
+    UserQuizDetailScheme,
+)
 from app.services.base import Service
 from app.utils.validators.quiz import QuizAnswerValidator
 
