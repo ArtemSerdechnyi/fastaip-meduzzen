@@ -14,7 +14,7 @@ from app.schemas.quiz import (
     QuizCreateRequestScheme,
     QuizDetailScheme,
 )
-from app.schemas.user_quiz import UserQuizCreateScheme, UserQuizDetailScheme
+from app.schemas.user_quiz import UserQuizCreateScheme, UserQuizDetailScheme, UserQuizAverageScoreScheme
 from app.services.auth import GenericAuthService
 from app.services.quiz import QuizService
 from app.services.user_quiz import UserQuizService
@@ -140,7 +140,7 @@ async def take_quiz(
 async def average_member_score(
     service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
     company_member_id: UUID,
-) -> float:
+) -> UserQuizAverageScoreScheme:
     average_score = await service.average_company_member_score(
         company_member_id=company_member_id
     )
@@ -151,6 +151,6 @@ async def average_member_score(
 async def average_user_score(
     service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
     user_id: UUID,
-) -> float:
+) -> UserQuizAverageScoreScheme:
     average_score = await service.average_user_score(user_id=user_id)
     return average_score

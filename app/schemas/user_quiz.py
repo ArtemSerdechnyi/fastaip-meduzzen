@@ -52,3 +52,7 @@ class UserQuizDetailScheme(BaseModel):
     total_questions: int
     attempt_time: datetime.datetime
     answers: List[UserQuizAnswerDetailScheme]
+
+
+class UserQuizAverageScoreScheme(BaseModel):
+    average_score: float

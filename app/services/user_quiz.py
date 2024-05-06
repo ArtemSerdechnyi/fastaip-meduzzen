@@ -6,7 +6,7 @@ from app.repositories.quiz import QuizRepository
 from app.repositories.user_quiz import UserQuizRepository
 from app.repositories.user_quiz_answers import UserQuizAnswersRepository
 from app.schemas.quiz import QuizDetailScheme
-from app.schemas.user_quiz import UserQuizCreateScheme, UserQuizDetailScheme
+from app.schemas.user_quiz import UserQuizCreateScheme, UserQuizDetailScheme, UserQuizAverageScoreScheme
 from app.services.base import Service
 from app.utils.validators.quiz import QuizAnswerValidator
 
@@ -102,7 +102,8 @@ class UserQuizService(Service):
                 user_id=member.user_id, company_id=member.company_id
             )
         )
-        return correct_answers_sum / question_count_sum
+        score = correct_answers_sum / question_count_sum
+        return UserQuizAverageScoreScheme(average_score=score)
 
     @validator.validate_user_has_user_quiz
     async def average_user_score(self, user_id: UUID):
@@ -117,4 +118,5 @@ class UserQuizService(Service):
                 user_id=user_id,
             )
         )
-        return correct_answers_sum / question_count_sum
+        score = correct_answers_sum / question_count_sum
+        return UserQuizAverageScoreScheme(average_score=score)
