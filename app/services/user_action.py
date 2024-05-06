@@ -18,7 +18,7 @@ from app.schemas.user_request import (
     UserRequestListDetailResponseScheme,
 )
 from app.services.base import Service
-from app.utils.validators import UserValidator
+from app.utils.validators.user import UserValidator
 
 
 class UserActionService(Service):

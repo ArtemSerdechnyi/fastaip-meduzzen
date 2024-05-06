@@ -13,12 +13,15 @@ from app.schemas.quiz import (
     QuizCreateRequestScheme,
     QuizDetailScheme,
 )
+from app.schemas.user_quiz import UserQuizCreateScheme, UserQuizDetailScheme
 from app.services.auth import GenericAuthService
 from app.services.quiz import QuizService
+from app.services.user_quiz import UserQuizService
 from app.utils.quiz import get_quiz_page_limit
-from app.utils.services import get_quiz_service
+from app.utils.services import get_quiz_service, get_user_quiz_service
 
 quiz_router = APIRouter()
+user_quiz_router = APIRouter()
 
 
 @quiz_router.post("/{company_id}")
@@ -115,3 +118,39 @@ async def delete_answer(
 ) -> AnswerDetailScheme:
     answer = await service.delete_answer(answer_id=answer_id, user=user)
     return answer
+
+
+# user quiz routers
+
+
+@user_quiz_router.post("/take/{quiz_id}")
+async def take_quiz(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    quiz_id: UUID,
+    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
+    body: UserQuizCreateScheme,
+) -> UserQuizDetailScheme:
+    user_quiz = await service.record_user_quiz(
+        scheme=body, quiz_id=quiz_id, user=user
+    )
+    return user_quiz
+
+
+@user_quiz_router.get("member/average/{company_member_id}")
+async def average_member_score(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    company_member_id: UUID,
+) -> float:
+    average_score = await service.average_company_member_score(
+        company_member_id=company_member_id
+    )
+    return average_score
+
+
+@user_quiz_router.get("user/average/{user_id}")
+async def average_user_score(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    user_id: UUID,
+) -> float:
+    average_score = await service.average_user_score(user_id=user_id)
+    return average_score
