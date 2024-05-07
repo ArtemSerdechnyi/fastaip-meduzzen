@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from app.core.constants import USER_QUIZ_ANSWERS_EXPIRE_TIME
 from app.db.models import User
 from app.repositories.company_member import CompanyMemberRepository
 from app.repositories.quiz import QuizRepository
@@ -12,6 +13,7 @@ from app.schemas.user_quiz import (
     UserQuizDetailScheme,
 )
 from app.services.base import Service
+from app.services.redis import RedisService
 from app.utils.validators.quiz import QuizAnswerValidator
 
 
@@ -23,6 +25,7 @@ class UserQuizService(Service):
         self.quiz_repo = QuizRepository(session)
         self.user_quiz_repo = UserQuizRepository(session)
         self.user_quiz_answers_repo = UserQuizAnswersRepository(session)
+        self.redis = RedisService()
         super().__init__(session)
 
     @staticmethod
@@ -88,10 +91,21 @@ class UserQuizService(Service):
         raw_nested_user_quiz = await self.user_quiz_repo.get_nested_user_quiz(
             user_quiz_id=user_quiz_id
         )
-        return UserQuizDetailScheme.from_orm(raw_nested_user_quiz)
+        user_quiz = UserQuizDetailScheme.from_orm(raw_nested_user_quiz)
+
+        # add to redis
+        await self.redis.set_value(
+            key=user_quiz.user_quiz_id,
+            value=user_quiz.model_dump_json(exclude_unset=True),
+            expire=USER_QUIZ_ANSWERS_EXPIRE_TIME,
+        )
+        return user_quiz
 
     @validator.validate_user_quiz_is_exist_by_user_quiz_id
     async def get_user_quiz(self, user_quiz_id: UUID):
+        if cache := await self.redis.get_value(user_quiz_id):
+            return UserQuizDetailScheme.parse_raw(cache)
+
         raw_nested_user_quiz = await self.user_quiz_repo.get_nested_user_quiz(
             user_quiz_id=user_quiz_id
         )

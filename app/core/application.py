@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.core.settings import app_settings
-from app.db.redis import lifespan_redis
+from app.db.db_redis import lifespan_redis
 from app.routers import main_router
 
 _app = None
