@@ -167,3 +167,12 @@ async def average_user_score(
 ) -> UserQuizAverageScoreScheme:
     average_score = await service.average_user_score(user_id=user_id)
     return average_score
+
+
+@user_quiz_router.get("/my_all")
+async def get_all_user_quizzes(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
+) -> ListQuizDetailScheme:
+    quizzes = await service.get_all_user_quizzes(user=user)
+    return quizzes

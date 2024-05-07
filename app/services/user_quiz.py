@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from app.core.constants import USER_QUIZ_ANSWERS_EXPIRE_TIME
+from app.db.db_redis import get_redis_connection, redis
 from app.db.models import User
 from app.repositories.company_member import CompanyMemberRepository
 from app.repositories.quiz import QuizRepository
@@ -11,6 +12,7 @@ from app.schemas.user_quiz import (
     UserQuizAverageScoreScheme,
     UserQuizCreateScheme,
     UserQuizDetailScheme,
+    ListUserQuizDetailScheme,
 )
 from app.services.base import Service
 from app.services.redis import RedisService
@@ -25,7 +27,7 @@ class UserQuizService(Service):
         self.quiz_repo = QuizRepository(session)
         self.user_quiz_repo = UserQuizRepository(session)
         self.user_quiz_answers_repo = UserQuizAnswersRepository(session)
-        self.redis = RedisService()
+        self.redis = RedisService(get_redis_connection())
         super().__init__(session)
 
     @staticmethod
@@ -145,3 +147,18 @@ class UserQuizService(Service):
         )
         score = correct_answers_sum / question_count_sum
         return UserQuizAverageScoreScheme(average_score=score)
+
+    async def get_all_user_quizzes(
+        self, user: User
+    ) -> ListUserQuizDetailScheme:
+        raw_nested_user_quizzes = (
+            await self.user_quiz_repo.get_nested_user_quizzes(
+                user_id=user.user_id
+            )
+        )
+        user_quizzes = [
+            UserQuizDetailScheme.from_orm(uq) for uq in raw_nested_user_quizzes
+        ]
+        # todo add redis
+
+        return ListUserQuizDetailScheme(user_quizzes=user_quizzes)

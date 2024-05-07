@@ -1,3 +1,4 @@
+from typing import Sequence
 from uuid import UUID
 
 from sqlalchemy import and_, func, insert, select
@@ -25,6 +26,17 @@ class UserQuizRepository:
         )
         result = await self.session.execute(query)
         return result.scalar()
+
+    async def get_nested_user_quizzes(
+        self, user_id: UUID
+    ) -> Sequence[UserQuiz]:
+        query = (
+            select(UserQuiz)
+            .options(joinedload(UserQuiz.answers))
+            .where(UserQuiz.user_id == user_id)
+        )
+        result = await self.session.execute(query)
+        return result.scalars().all()
 
     async def get_sum_correct_answers_count_by_user(
         self, user_id: UUID, company_id: UUID = None

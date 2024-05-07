@@ -2,11 +2,8 @@ from redis.asyncio import Redis
 
 
 class RedisService:
-    def __init__(self):
-        from app.core.application import get_app
-
-        app = get_app()
-        self._redis: Redis = app.redis
+    def __init__(self, redis: Redis):
+        self._redis: Redis = redis
 
     async def set_value(self, key, value: str, expire: int = None):
         key = str(key)

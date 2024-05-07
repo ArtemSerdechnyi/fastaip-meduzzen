@@ -54,5 +54,11 @@ class UserQuizDetailScheme(BaseModel):
     answers: List[UserQuizAnswerDetailScheme]
 
 
+class ListUserQuizDetailScheme(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    user_quizzes: List[UserQuizDetailScheme]
+
+
 class UserQuizAverageScoreScheme(BaseModel):
     average_score: float
