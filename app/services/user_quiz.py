@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from app.core.constants import USER_QUIZ_ANSWERS_EXPIRE_TIME
-from app.db.db_redis import get_redis_connection, redis
+from app.db.db_redis import get_redis_connection
 from app.db.models import User
 from app.repositories.company_member import CompanyMemberRepository
 from app.repositories.quiz import QuizRepository
@@ -9,10 +9,10 @@ from app.repositories.user_quiz import UserQuizRepository
 from app.repositories.user_quiz_answers import UserQuizAnswersRepository
 from app.schemas.quiz import QuizDetailScheme
 from app.schemas.user_quiz import (
+    ListUserQuizDetailScheme,
     UserQuizAverageScoreScheme,
     UserQuizCreateScheme,
     UserQuizDetailScheme,
-    ListUserQuizDetailScheme,
 )
 from app.services.base import Service
 from app.services.redis import RedisService
