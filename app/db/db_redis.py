@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
 
 import redis.asyncio as aioredis
-
 from fastapi import FastAPI
 
 from app.core.settings import redis_conf

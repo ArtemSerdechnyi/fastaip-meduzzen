@@ -3,7 +3,6 @@ from logging import getLogger
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.db_redis import get_redis_client
 from app.utils.validators import BaseValidator
 
 logger = getLogger(__name__)
