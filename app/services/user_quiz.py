@@ -90,6 +90,13 @@ class UserQuizService(Service):
         )
         return UserQuizDetailScheme.from_orm(raw_nested_user_quiz)
 
+    @validator.validate_user_quiz_is_exist_by_user_quiz_id
+    async def get_user_quiz(self, user_quiz_id: UUID):
+        raw_nested_user_quiz = await self.user_quiz_repo.get_nested_user_quiz(
+            user_quiz_id=user_quiz_id
+        )
+        return UserQuizDetailScheme.from_orm(raw_nested_user_quiz)
+
     @validator.validate_company_member_user_quiz_exist
     async def average_company_member_score(self, company_member_id: UUID):
         member = await self.company_member_repo.get_member_by_attributes(

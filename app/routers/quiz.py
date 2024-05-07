@@ -140,6 +140,15 @@ async def take_quiz(
     return user_quiz
 
 
+@user_quiz_router.get("/{user_quiz_id}")
+async def get_user_quiz(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    user_quiz_id: UUID,
+) -> UserQuizDetailScheme:
+    user_quiz = await service.get_user_quiz(user_quiz_id=user_quiz_id)
+    return user_quiz
+
+
 @user_quiz_router.get("/member/average/{company_member_id}")
 async def average_member_score(
     service: Annotated[UserQuizService, Depends(get_user_quiz_service)],

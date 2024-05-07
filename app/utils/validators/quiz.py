@@ -494,3 +494,31 @@ class QuizAnswerValidator(AbstractQuizValidator):
             return await f(self_service, **kwargs)
 
         return wrapper
+
+    def validate_user_quiz_is_exist_by_user_quiz_id(self, f):
+        """
+        Validator check that user_quiz is exist.
+
+        Depends: user_quiz_id
+        """
+
+        @wraps(f)
+        async def wrapper(self_service, **kwargs):
+            user_quiz_id: UUID = kwargs["user_quiz_id"]
+
+            query = self._build_where_exist_select_query(
+                UserQuiz.user_quiz_id == user_quiz_id,
+                UserQuiz.quiz_id == Quiz.quiz_id,
+                Quiz.is_active == True,
+            )
+
+            result = await self_service.session.execute(query)
+            exist = result.scalar()
+
+            if not exist:
+                error_message = "Validation error. User user_quiz dont exist"
+                raise PermissionError(error_message)
+
+            return await f(self_service, **kwargs)
+
+        return wrapper
