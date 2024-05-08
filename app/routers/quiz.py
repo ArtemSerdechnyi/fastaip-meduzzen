@@ -15,11 +15,11 @@ from app.schemas.quiz import (
     QuizDetailScheme,
 )
 from app.schemas.user_quiz import (
+    ListUserQuizDetailScheme,
+    ResponseFileTypeEnum,
     UserQuizAverageScoreScheme,
     UserQuizCreateScheme,
     UserQuizDetailScheme,
-    ListUserQuizDetailScheme,
-    ResponseFileTypeEnum,
 )
 from app.services.auth import GenericAuthService
 from app.services.quiz import QuizService

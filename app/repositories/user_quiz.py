@@ -5,7 +5,7 @@ from sqlalchemy import and_, func, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.db.models import Quiz, UserQuiz, CompanyMember
+from app.db.models import CompanyMember, Quiz, UserQuiz
 
 
 class UserQuizRepository:

@@ -1,5 +1,6 @@
 import json
 from uuid import UUID
+
 import pandas as pd
 
 from app.core.constants import USER_QUIZ_ANSWERS_EXPIRE_TIME
@@ -74,7 +75,6 @@ class UserQuizService(Service):
                 "attempt_time",
             ],
         )
-
 
     @validator.validate_quiz_exist_and_active_by_quiz_id
     @validator.validate_user_is_company_member_or_owner_by_quiz_id
