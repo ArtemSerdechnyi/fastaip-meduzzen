@@ -4,7 +4,6 @@ from uuid import UUID
 import pandas as pd
 
 from app.core.constants import USER_QUIZ_ANSWERS_EXPIRE_TIME
-from app.db.db_redis import get_redis_connection
 from app.db.models import User
 from app.repositories.company_member import CompanyMemberRepository
 from app.repositories.quiz import QuizRepository
@@ -30,7 +29,7 @@ class UserQuizService(Service):
         self.quiz_repo = QuizRepository(session)
         self.user_quiz_repo = UserQuizRepository(session)
         self.user_quiz_answers_repo = UserQuizAnswersRepository(session)
-        self.redis = RedisService(get_redis_connection())
+        self.redis = RedisService()
         super().__init__(session)
 
     @staticmethod
