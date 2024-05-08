@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, date
+from datetime import date, datetime, timedelta
 
 from app.core.constants import DAYS_DATE_FILTER_RANGE
 

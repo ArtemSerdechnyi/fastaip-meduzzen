@@ -1,14 +1,11 @@
-from datetime import datetime, timedelta
-from typing import Annotated, Optional
-from uuid import UUID
-from dateutil import relativedelta
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 
 from app.schemas.analytics import UserQuizAverageScoreScheme
 from app.services.user_quiz import UserQuizService
-from app.utils.services import get_user_quiz_service
 from app.utils.generics import FromDate, ToDate
+from app.utils.services import get_user_quiz_service
 
 quiz_analytics_router = APIRouter()
 
