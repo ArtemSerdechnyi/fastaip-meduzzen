@@ -2,7 +2,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from starlette.responses import PlainTextResponse, Response
+from starlette.responses import Response, StreamingResponse
 
 from app.core.constants import QUIZ_PAGE_LIMIT
 from app.db.models import User
@@ -181,9 +181,8 @@ async def get_all_user_quizzes(
     content = service.export_user_quizzes(
         scheme=quizzes, file_type=response_file_type
     )
-    return PlainTextResponse(
-        content=content, media_type=f"text/{response_file_type}"
-    )
+    media_type = service.get_media_type(file_type=response_file_type)
+    return StreamingResponse(content=content, media_type=media_type)
 
 
 @user_quiz_router.get("/member/{company_member_id}")
@@ -199,9 +198,8 @@ async def get_company_member_quizzes(
     content = service.export_user_quizzes(
         scheme=quizzes, file_type=response_file_type
     )
-    return PlainTextResponse(
-        content=content, media_type=f"text/{response_file_type}"
-    )
+    media_type = service.get_media_type(file_type=response_file_type)
+    return StreamingResponse(content=content, media_type=media_type)
 
 
 @user_quiz_router.get("/member_all/{company_id}")
@@ -214,12 +212,11 @@ async def get_all_company_members_quizzes(
     quizzes = await service.get_all_company_members_quizzes(
         company_id=company_id, user=user
     )
-    content = service.export_user_quizzes(
+    content: str = service.export_user_quizzes(
         scheme=quizzes, file_type=response_file_type
     )
-    return PlainTextResponse(
-        content=content, media_type=f"text/{response_file_type}"
-    )
+    media_type = service.get_media_type(file_type=response_file_type)
+    return StreamingResponse(content=content, media_type=media_type)
 
 
 @user_quiz_router.get("/quiz_all/{quiz_id}")
@@ -233,6 +230,5 @@ async def get_all_quiz_answers(
     content = service.export_user_quizzes(
         scheme=quizzes, file_type=response_file_type
     )
-    return PlainTextResponse(
-        content=content, media_type=f"text/{response_file_type}"
-    )
+    media_type = service.get_media_type(file_type=response_file_type)
+    return StreamingResponse(content=content, media_type=media_type)
