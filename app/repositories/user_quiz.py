@@ -5,7 +5,7 @@ from sqlalchemy import and_, func, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.db.models import Quiz, UserQuiz
+from app.db.models import Quiz, UserQuiz, CompanyMember
 
 
 class UserQuizRepository:
@@ -27,16 +27,74 @@ class UserQuizRepository:
         result = await self.session.execute(query)
         return result.scalar()
 
-    async def get_nested_user_quizzes(
+    async def get_nested_user_quizzes_by_user_id(
         self, user_id: UUID
     ) -> Sequence[UserQuiz]:
         query = (
             select(UserQuiz)
             .options(joinedload(UserQuiz.answers))
-            .where(UserQuiz.user_id == user_id)
+            .where(
+                and_(
+                    UserQuiz.user_id == user_id,
+                    UserQuiz.quiz_id == Quiz.quiz_id,
+                    Quiz.is_active == True,
+                )
+            )
         )
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return result.unique().scalars().all()
+
+    async def get_nested_user_quizzes_by_member_id(
+        self, member_id: UUID
+    ) -> Sequence[UserQuiz]:
+        query = (
+            select(UserQuiz)
+            .options(joinedload(UserQuiz.answers))
+            .where(
+                and_(
+                    CompanyMember.member_id == member_id,
+                    CompanyMember.user_id == UserQuiz.user_id,
+                    UserQuiz.quiz_id == Quiz.quiz_id,
+                    Quiz.is_active == True,
+                )
+            )
+        )
+        result = await self.session.execute(query)
+        return result.unique().scalars().all()
+
+    async def get_nested_quizzes_by_company_id(
+        self, company_id: UUID
+    ) -> Sequence[UserQuiz]:
+        query = (
+            select(UserQuiz)
+            .options(joinedload(UserQuiz.answers))
+            .where(
+                and_(
+                    UserQuiz.quiz_id == Quiz.quiz_id,
+                    Quiz.company_id == company_id,
+                    Quiz.is_active == True,
+                )
+            )
+        )
+        result = await self.session.execute(query)
+        return result.unique().scalars().all()
+
+    async def get_nested_quizzes_by_quiz_id(
+        self, quiz_id: UUID
+    ) -> Sequence[UserQuiz]:
+        query = (
+            select(UserQuiz)
+            .options(joinedload(UserQuiz.answers))
+            .where(
+                and_(
+                    UserQuiz.quiz_id == Quiz.quiz_id,
+                    Quiz.quiz_id == quiz_id,
+                    Quiz.is_active == True,
+                )
+            )
+        )
+        result = await self.session.execute(query)
+        return result.unique().scalars().all()
 
     async def get_sum_correct_answers_count_by_user(
         self, user_id: UUID, company_id: UUID = None

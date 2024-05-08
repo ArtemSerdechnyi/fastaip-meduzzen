@@ -18,6 +18,8 @@ from app.schemas.user_quiz import (
     UserQuizAverageScoreScheme,
     UserQuizCreateScheme,
     UserQuizDetailScheme,
+    ListUserQuizDetailScheme,
+    ResponseFileTypeEnum,
 )
 from app.services.auth import GenericAuthService
 from app.services.quiz import QuizService
@@ -173,6 +175,41 @@ async def average_user_score(
 async def get_all_user_quizzes(
     service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
     user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
-) -> ListQuizDetailScheme:
+) -> ListUserQuizDetailScheme:
     quizzes = await service.get_all_user_quizzes(user=user)
+    return quizzes
+
+
+@user_quiz_router.get("/member/{company_member_id}")
+async def get_company_member_quizzes(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
+    member_id: UUID,
+) -> ListUserQuizDetailScheme:
+    quizzes = await service.get_company_member_quizzes(
+        member_id=member_id, user=user
+    )
+    return quizzes
+
+
+@user_quiz_router.get("/member_all/{company_id}")
+async def get_all_company_members_quizzes(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
+    company_id: UUID,
+    response_file_type: ResponseFileTypeEnum = None,
+) -> ListUserQuizDetailScheme:
+    quizzes = await service.get_all_company_members_quizzes(
+        company_id=company_id, user=user
+    )
+    return quizzes
+
+
+@user_quiz_router.get("/quiz_all/{quiz_id}")
+async def get_all_quiz_answers(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
+    quiz_id: UUID,
+) -> ListUserQuizDetailScheme:
+    quizzes = await service.get_all_quiz_answers(quiz_id=quiz_id, user=user)
     return quizzes

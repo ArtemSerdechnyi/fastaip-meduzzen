@@ -1,4 +1,6 @@
+import json
 from uuid import UUID
+import pandas as pd
 
 from app.core.constants import USER_QUIZ_ANSWERS_EXPIRE_TIME
 from app.db.db_redis import get_redis_connection
@@ -57,6 +59,22 @@ class UserQuizService(Service):
                 count += 1
 
         return count
+
+    def export_user_quizzes_to_csv(self, scheme: ListUserQuizDetailScheme):
+        json_dump = scheme.model_dump_json(exclude_unset=True)
+        json_data = json.loads(json_dump)
+        normalize_data = pd.json_normalize(
+            json_data["user_quizzes"],
+            record_path=["answers"],
+            meta=[
+                "user_id",
+                "quiz_id",
+                "correct_answers_count",
+                "total_questions",
+                "attempt_time",
+            ],
+        )
+
 
     @validator.validate_quiz_exist_and_active_by_quiz_id
     @validator.validate_user_is_company_member_or_owner_by_quiz_id
@@ -151,14 +169,103 @@ class UserQuizService(Service):
     async def get_all_user_quizzes(
         self, user: User
     ) -> ListUserQuizDetailScheme:
+        if cache := await self.redis.get_value(f"user_answers:{user.user_id}"):
+            return ListUserQuizDetailScheme.parse_raw(cache)
+
         raw_nested_user_quizzes = (
-            await self.user_quiz_repo.get_nested_user_quizzes(
+            await self.user_quiz_repo.get_nested_user_quizzes_by_user_id(
                 user_id=user.user_id
             )
         )
-        user_quizzes = [
+        list_user_quizzes = [
             UserQuizDetailScheme.from_orm(uq) for uq in raw_nested_user_quizzes
         ]
-        # todo add redis
+        user_quizzes = ListUserQuizDetailScheme(user_quizzes=list_user_quizzes)
 
-        return ListUserQuizDetailScheme(user_quizzes=user_quizzes)
+        # add to redis
+        await self.redis.set_value(
+            key=f"user_answers:{user.user_id}",
+            value=user_quizzes.model_dump_json(exclude_unset=True),
+            expire=USER_QUIZ_ANSWERS_EXPIRE_TIME,
+        )
+
+        return user_quizzes
+
+    @validator.validate_user_is_owner_or_admin_by_company_member_id
+    async def get_company_member_quizzes(
+        self, member_id: UUID, user: User
+    ) -> ListUserQuizDetailScheme:
+        if cache := await self.redis.get_value(f"member_answers:{member_id}"):
+            return ListUserQuizDetailScheme.parse_raw(cache)
+
+        raw_nested_user_quizzes = (
+            await self.user_quiz_repo.get_nested_user_quizzes_by_member_id(
+                member_id=member_id,
+            )
+        )
+        list_user_quizzes = [
+            UserQuizDetailScheme.from_orm(uq) for uq in raw_nested_user_quizzes
+        ]
+        user_quizzes = ListUserQuizDetailScheme(user_quizzes=list_user_quizzes)
+
+        # add to redis
+        await self.redis.set_value(
+            key=f"member_answers:{member_id}",
+            value=user_quizzes.model_dump_json(exclude_unset=True),
+            expire=USER_QUIZ_ANSWERS_EXPIRE_TIME,
+        )
+        return user_quizzes
+
+    @validator.validate_exist_company_is_active
+    @validator.validate_user_is_owner_or_admin_by_company_id
+    async def get_all_company_members_quizzes(
+        self, company_id: UUID, user: User
+    ) -> ListUserQuizDetailScheme:
+        if cache := await self.redis.get_value(
+            f"members_answers:{company_id}"
+        ):
+            return ListUserQuizDetailScheme.parse_raw(cache)
+
+        raw_nested_user_quizzes = (
+            await self.user_quiz_repo.get_nested_quizzes_by_company_id(
+                company_id=company_id
+            )
+        )
+        list_user_quizzes = [
+            UserQuizDetailScheme.from_orm(uq) for uq in raw_nested_user_quizzes
+        ]
+        user_quizzes = ListUserQuizDetailScheme(user_quizzes=list_user_quizzes)
+
+        # add to redis
+        await self.redis.set_value(
+            key=f"members_answers:{company_id}",
+            value=user_quizzes.model_dump_json(exclude_unset=True),
+            expire=USER_QUIZ_ANSWERS_EXPIRE_TIME,
+        )
+        return user_quizzes
+
+    @validator.validate_quiz_exist_and_active_by_quiz_id
+    @validator.validate_user_is_company_member_or_owner_by_quiz_id
+    async def get_all_quiz_answers(
+        self, quiz_id: UUID, user: User
+    ) -> ListUserQuizDetailScheme:
+        if cache := await self.redis.get_value(f"quiz_answers:{quiz_id}"):
+            return ListUserQuizDetailScheme.parse_raw(cache)
+
+        raw_nested_user_quizzes = (
+            await self.user_quiz_repo.get_nested_quizzes_by_quiz_id(
+                quiz_id=quiz_id,
+            )
+        )
+        list_user_quizzes = [
+            UserQuizDetailScheme.from_orm(uq) for uq in raw_nested_user_quizzes
+        ]
+        user_quizzes = ListUserQuizDetailScheme(user_quizzes=list_user_quizzes)
+
+        # add to redis
+        await self.redis.set_value(
+            key=f"quiz_answers:{quiz_id}",
+            value=user_quizzes.model_dump_json(exclude_unset=True),
+            expire=USER_QUIZ_ANSWERS_EXPIRE_TIME,
+        )
+        return user_quizzes
