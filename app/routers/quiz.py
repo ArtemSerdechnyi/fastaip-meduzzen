@@ -6,6 +6,7 @@ from starlette.responses import PlainTextResponse, Response
 
 from app.core.constants import QUIZ_PAGE_LIMIT
 from app.db.models import User
+from app.schemas.analytics import UserQuizAverageScoreScheme
 from app.schemas.quiz import (
     AnswerCreateScheme,
     AnswerDetailScheme,
@@ -19,7 +20,6 @@ from app.schemas.user_quiz import (
     UserQuizCreateScheme,
     UserQuizDetailScheme,
 )
-from app.schemas.analytics import UserQuizAverageScoreScheme
 from app.services.auth import GenericAuthService
 from app.services.quiz import QuizService
 from app.services.user_quiz import UserQuizService

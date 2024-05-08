@@ -3,13 +3,13 @@ from fastapi import APIRouter
 import app.routers.company_action
 import app.routers.user_action
 from app.routers import (
+    analytics,
     company,
     company_action,
     health_check,
     quiz,
     user,
     user_action,
-    analytics,
 )
 
 __all__ = [

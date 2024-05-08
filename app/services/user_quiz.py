@@ -10,13 +10,13 @@ from app.repositories.company_member import CompanyMemberRepository
 from app.repositories.quiz import QuizRepository
 from app.repositories.user_quiz import UserQuizRepository
 from app.repositories.user_quiz_answers import UserQuizAnswersRepository
+from app.schemas.analytics import UserQuizAverageScoreScheme
 from app.schemas.quiz import QuizDetailScheme
 from app.schemas.user_quiz import (
     ListUserQuizDetailScheme,
     UserQuizCreateScheme,
     UserQuizDetailScheme,
 )
-from app.schemas.analytics import UserQuizAverageScoreScheme
 from app.services.base import Service
 from app.services.redis import RedisService
 from app.utils.generics import ResponseFileType
