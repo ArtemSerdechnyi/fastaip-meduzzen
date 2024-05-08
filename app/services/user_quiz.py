@@ -87,7 +87,7 @@ class UserQuizService(Service):
         return string.getvalue()
 
     @staticmethod
-    def get_media_type(file_type: ResponseFileType)-> str:
+    def get_media_type(file_type: ResponseFileType) -> str:
         match file_type:
             case "json":
                 return "application/json"
