@@ -1,5 +1,5 @@
-from redis.asyncio import Redis
 import redis.asyncio as aioredis
+from redis.asyncio import Redis
 
 from app.core.constants import REDIS_MAX_CONNECTIONS
 
