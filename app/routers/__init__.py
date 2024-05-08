@@ -9,6 +9,7 @@ from app.routers import (
     quiz,
     user,
     user_action,
+    analytics,
 )
 
 __all__ = [
@@ -36,3 +37,8 @@ main_router.include_router(
 # quiz routers
 quiz.quiz_router.include_router(quiz.user_quiz_router, prefix="/answer")
 main_router.include_router(quiz.quiz_router, prefix="/quiz", tags=["quiz"])
+
+# analytics
+main_router.include_router(
+    analytics.quiz_analytics_router, prefix="/analytics", tags=["analytics"]
+)

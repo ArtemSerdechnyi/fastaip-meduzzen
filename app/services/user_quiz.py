@@ -13,10 +13,10 @@ from app.repositories.user_quiz_answers import UserQuizAnswersRepository
 from app.schemas.quiz import QuizDetailScheme
 from app.schemas.user_quiz import (
     ListUserQuizDetailScheme,
-    UserQuizAverageScoreScheme,
     UserQuizCreateScheme,
     UserQuizDetailScheme,
 )
+from app.schemas.analytics import UserQuizAverageScoreScheme
 from app.services.base import Service
 from app.services.redis import RedisService
 from app.utils.generics import ResponseFileType
@@ -290,3 +290,18 @@ class UserQuizService(Service):
             expire=USER_QUIZ_ANSWERS_EXPIRE_TIME,
         )
         return user_quizzes
+
+    # analytics
+
+    async def get_average_score_for_all_quizzes(self):
+        correct_answers_sum = (
+            await self.user_quiz_repo.get_sum_correct_answers_count_for_all()
+        )
+        question_count_sum = (
+            await self.user_quiz_repo.get_sum_total_questions_for_all()
+        )
+        score = correct_answers_sum / question_count_sum
+        return UserQuizAverageScoreScheme(average_score=score)
+
+    async def get_average_score_for_each_quiz(self):
+        pass

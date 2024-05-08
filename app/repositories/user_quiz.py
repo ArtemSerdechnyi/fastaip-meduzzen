@@ -114,6 +114,12 @@ class UserQuizRepository:
         result = result.scalar()
         return result
 
+    async def get_sum_correct_answers_count_for_all(self) -> int:
+        query = select(func.sum(UserQuiz.correct_answers_count))
+        result = await self.session.execute(query)
+        result = result.scalar()
+        return result
+
     async def get_sum_total_questions_by_user(
         self, user_id: UUID, company_id: UUID = None
     ) -> int:
@@ -128,6 +134,12 @@ class UserQuizRepository:
             query = query.where(
                 Quiz.company_id == company_id,
             )
+        result = await self.session.execute(query)
+        result = result.scalar()
+        return result
+
+    async def get_sum_total_questions_for_all(self) -> int:
+        query = select(func.sum(UserQuiz.total_questions))
         result = await self.session.execute(query)
         result = result.scalar()
         return result

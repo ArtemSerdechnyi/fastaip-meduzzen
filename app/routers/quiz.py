@@ -16,10 +16,10 @@ from app.schemas.quiz import (
     QuizDetailScheme,
 )
 from app.schemas.user_quiz import (
-    UserQuizAverageScoreScheme,
     UserQuizCreateScheme,
     UserQuizDetailScheme,
 )
+from app.schemas.analytics import UserQuizAverageScoreScheme
 from app.services.auth import GenericAuthService
 from app.services.quiz import QuizService
 from app.services.user_quiz import UserQuizService
