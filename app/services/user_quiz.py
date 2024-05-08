@@ -1,4 +1,5 @@
 import json
+from io import StringIO
 from uuid import UUID
 
 import pandas as pd
@@ -19,6 +20,7 @@ from app.schemas.user_quiz import (
 from app.services.base import Service
 from app.services.redis import RedisService
 from app.utils.validators.quiz import QuizAnswerValidator
+from app.utils.generics import ResponseFileType
 
 
 class UserQuizService(Service):
@@ -33,11 +35,11 @@ class UserQuizService(Service):
         super().__init__(session)
 
     @staticmethod
-    async def get_quiz_question_count(quiz: QuizDetailScheme) -> int:
+    async def _get_quiz_question_count(quiz: QuizDetailScheme) -> int:
         return len(quiz.questions)
 
     @staticmethod
-    async def get_quiz_correct_answers_count(
+    async def _get_quiz_correct_answers_count(
         quiz: QuizDetailScheme, user_quiz: UserQuizCreateScheme
     ) -> int:
         quiz_sorted_questions = sorted(
@@ -60,7 +62,13 @@ class UserQuizService(Service):
 
         return count
 
-    def export_user_quizzes_to_csv(self, scheme: ListUserQuizDetailScheme):
+    @staticmethod
+    def _export_user_quizzes_to_json(scheme: ListUserQuizDetailScheme) -> str:
+        json_dump = scheme.model_dump_json(exclude_unset=True)
+        return json_dump
+
+    @staticmethod
+    def _export_user_quizzes_to_csv(scheme: ListUserQuizDetailScheme) -> str:
         json_dump = scheme.model_dump_json(exclude_unset=True)
         json_data = json.loads(json_dump)
         normalize_data = pd.json_normalize(
@@ -74,6 +82,20 @@ class UserQuizService(Service):
                 "attempt_time",
             ],
         )
+        string = StringIO()
+        normalize_data.to_csv(string, index=False)
+        return string.getvalue()
+
+    def export_user_quizzes(
+        self, scheme: ListUserQuizDetailScheme, file_type: ResponseFileType
+    ) -> str:
+        match file_type:
+            case "json":
+                return self._export_user_quizzes_to_json(scheme=scheme)
+            case "csv":
+                return self._export_user_quizzes_to_csv(scheme=scheme)
+            case _:
+                raise ValueError(f"Invalid file type: {file_type}")
 
     @validator.validate_quiz_exist_and_active_by_quiz_id
     @validator.validate_user_is_company_member_or_owner_by_quiz_id
@@ -85,8 +107,8 @@ class UserQuizService(Service):
     ) -> UserQuizDetailScheme:
         raw_nested_quiz = await self.quiz_repo.get_nested_quiz(quiz_id=quiz_id)
         nested_quiz = QuizDetailScheme.from_orm(raw_nested_quiz)
-        question_count = await self.get_quiz_question_count(quiz=nested_quiz)
-        correct_answer_count = await self.get_quiz_correct_answers_count(
+        question_count = await self._get_quiz_question_count(quiz=nested_quiz)
+        correct_answer_count = await self._get_quiz_correct_answers_count(
             quiz=nested_quiz, user_quiz=scheme
         )
 
