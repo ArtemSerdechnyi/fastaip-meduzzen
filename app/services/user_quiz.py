@@ -86,6 +86,16 @@ class UserQuizService(Service):
         normalize_data.to_csv(string, index=False)
         return string.getvalue()
 
+    @staticmethod
+    def get_media_type(file_type: ResponseFileType)-> str:
+        match file_type:
+            case "json":
+                return "application/json"
+            case "csv":
+                return "text/csv"
+            case _:
+                raise ValueError(f"Invalid file type: {file_type}")
+
     def export_user_quizzes(
         self, scheme: ListUserQuizDetailScheme, file_type: ResponseFileType
     ) -> str:
