@@ -21,7 +21,7 @@ from app.schemas.company_request import (
 )
 from app.schemas.user_request import UserRequestDetailResponseScheme
 from app.services.base import Service
-from app.utils.validators import CompanyValidator
+from app.utils.validators.company import CompanyValidator
 
 
 class CompanyActionService(Service):

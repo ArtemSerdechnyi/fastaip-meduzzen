@@ -1,12 +1,7 @@
 from passlib.context import CryptContext
 from pydantic import SecretStr
 
-from app.core.constants import USERS_PAGE_LIMIT
 from app.utils.generics import Password
-
-
-def get_users_page_limit() -> int:
-    return USERS_PAGE_LIMIT
 
 
 class PasswordManager:

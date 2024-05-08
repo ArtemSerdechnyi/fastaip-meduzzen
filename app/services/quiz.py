@@ -14,11 +14,11 @@ from app.schemas.quiz import (
     QuizDetailScheme,
 )
 from app.services.base import Service
-from app.utils.validators import QuizValidator
+from app.utils.validators.quiz import QuizCreateValidator
 
 
 class QuizService(Service):
-    validator = QuizValidator()
+    validator = QuizCreateValidator()
 
     def __init__(self, session):
         self.quiz_repository = QuizRepository(session)
@@ -26,7 +26,7 @@ class QuizService(Service):
         self.answer_repository = AnswerRepository(session)
         super().__init__(session)
 
-    @validator.validate_quiz_company_and_name_unique
+    # @validator.validate_quiz_company_and_name_unique
     @validator.validate_exist_company_is_active
     @validator.validate_user_is_owner_or_admin_by_company_id
     async def create_quiz(

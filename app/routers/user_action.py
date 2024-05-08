@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
+from app.core.constants import USERS_PAGE_LIMIT
 from app.db.models import User
 from app.schemas.company_member import CompanyMemberDetailResponseScheme
 from app.schemas.company_request import (
@@ -16,7 +17,6 @@ from app.schemas.user_request import (
 from app.services.auth import GenericAuthService
 from app.services.user_action import UserActionService
 from app.utils.services import get_user_action_service
-from app.utils.user import get_users_page_limit
 
 user_action_router = APIRouter()
 
@@ -50,7 +50,7 @@ async def list_user_requests(
     user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
     service: Annotated[UserActionService, Depends(get_user_action_service)],
     page: int = 1,
-    limit: int = Depends(get_users_page_limit),
+    limit: int = USERS_PAGE_LIMIT,
 ) -> UserRequestListDetailResponseScheme:
     requests = await service.list_user_requests(
         user=user, page=page, limit=limit
@@ -63,7 +63,7 @@ async def list_user_invitations(
     user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
     service: Annotated[UserActionService, Depends(get_user_action_service)],
     page: int = 1,
-    limit: int = Depends(get_users_page_limit),
+    limit: int = USERS_PAGE_LIMIT,
 ) -> CompanyRequestListDetailResponseScheme:
     invitations = await service.list_company_requests_for_user(
         user=user, page=page, limit=limit

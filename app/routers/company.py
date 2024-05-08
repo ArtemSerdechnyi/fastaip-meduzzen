@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
+from app.core.constants import COMPANIES_PAGE_LIMIT
 from app.db.models import User
 from app.schemas.company import (
     CompanyCreateRequestScheme,
@@ -12,9 +13,6 @@ from app.schemas.company import (
 )
 from app.services.auth import GenericAuthService
 from app.services.company import CompanyService
-from app.utils.company import (
-    get_companies_page_limit,
-)
 from app.utils.services import get_company_service
 
 company_router = APIRouter()
@@ -36,7 +34,7 @@ async def create_company(
 async def list_companies(
     service: Annotated[CompanyService, Depends(get_company_service)],
     page: int = 1,
-    limit: int = Depends(get_companies_page_limit),
+    limit: int = COMPANIES_PAGE_LIMIT,
 ) -> CompanyListResponseScheme:
     companies = await service.get_all_companies(page=page, limit=limit)
     return companies
@@ -49,7 +47,7 @@ async def my_companies(
         User, Depends(GenericAuthService.get_user_from_any_token)
     ],
     page: int = 1,
-    limit: int = Depends(get_companies_page_limit),
+    limit: int = COMPANIES_PAGE_LIMIT,
 ) -> CompanyListResponseScheme:
     companies = await service.get_user_self_companies(
         page=page, limit=limit, user=owner

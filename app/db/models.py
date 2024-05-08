@@ -65,6 +65,7 @@ class User(Base):
     user_request = relationship(
         "UserRequest", back_populates="user", cascade="all, delete-orphan"
     )
+    quizzes = relationship("UserQuiz", back_populates="user")
 
     __repr_cols_num = 2
     __repr_cols = ("email", "is_active")
@@ -107,6 +108,9 @@ class Company(Base):
 class CompanyMember(Base):
     __tablename__ = "company_members"
 
+    member_id = Column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     company_id = Column(
         UUID(as_uuid=True),
         ForeignKey("companies.company_id", ondelete="CASCADE"),
@@ -216,6 +220,7 @@ class Quiz(Base):
     )
 
     company = relationship("Company", back_populates="quizzes")
+    users = relationship("UserQuiz", back_populates="quiz")
 
     __repr_cols_num = 3
 
@@ -238,6 +243,7 @@ class Question(Base):
     )
 
     quiz = relationship("Quiz", back_populates="questions")
+    user_answers = relationship("UserQuizAnswers", back_populates="question")
 
     __repr_cols_num = 3
 
@@ -257,5 +263,60 @@ class Answer(Base):
     is_correct = Column(Boolean, default=False, nullable=False)
 
     question = relationship("Question", back_populates="answers")
+    user_answers = relationship("UserQuizAnswers", back_populates="answer")
+
+    __repr_cols_num = 4
+
+
+# user response quiz
+
+
+class UserQuiz(Base):
+    __tablename__ = "user_quizzes"
+
+    user_quiz_id = Column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=False
+    )
+    quiz_id = Column(
+        UUID(as_uuid=True), ForeignKey("quizzes.quiz_id"), nullable=False
+    )
+    attempt_time = Column(
+        TIMESTAMP(timezone=True),
+        default=lambda: datetime.datetime.now(datetime.timezone.utc),
+    )
+    correct_answers_count = Column(Integer, default=0, nullable=False)
+    total_questions = Column(Integer, default=2, nullable=False)
+
+    user = relationship("User", back_populates="quizzes")
+    quiz = relationship("Quiz", back_populates="users")
+    answers = relationship("UserQuizAnswers", back_populates="user_quiz")
+
+    __repr_cols_num = 3
+
+
+class UserQuizAnswers(Base):
+    __tablename__ = "user_quiz_answers"
+
+    user_answer_id = Column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    user_quiz_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("user_quizzes.user_quiz_id"),
+        nullable=False,
+    )
+    question_id = Column(
+        UUID(as_uuid=True), ForeignKey("questions.question_id"), nullable=False
+    )
+    answer_id = Column(
+        UUID(as_uuid=True), ForeignKey("answers.answer_id"), nullable=False
+    )
+
+    user_quiz = relationship("UserQuiz", back_populates="answers")
+    question = relationship("Question", back_populates="user_answers")
+    answer = relationship("Answer", back_populates="user_answers")
 
     __repr_cols_num = 4

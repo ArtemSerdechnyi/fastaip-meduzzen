@@ -3,6 +3,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
+from app.core.constants import (
+    COMPANIES_MEMBERS_PAGE_LIMIT,
+    COMPANIES_USERS_REQUEST_PAGE_LIMIT,
+)
 from app.db.models import CompanyRequestStatus, CompanyRole, User
 from app.schemas.company_member import (
     CompanyMemberDetailResponseScheme,
@@ -15,10 +19,6 @@ from app.schemas.company_request import (
 from app.schemas.user_request import UserRequestDetailResponseScheme
 from app.services.auth import GenericAuthService
 from app.services.company_action import CompanyActionService
-from app.utils.company import (
-    get_companies_members_page_limit,
-    get_companies_users_request_page_limit,
-)
 from app.utils.services import get_company_action_service
 
 company_action_router = APIRouter()
@@ -114,7 +114,7 @@ async def get_company_members(
     company_id: UUID,
     role: CompanyRole = None,
     page: int = 1,
-    limit: int = Depends(get_companies_members_page_limit),
+    limit: int = COMPANIES_MEMBERS_PAGE_LIMIT,
 ) -> ListNestedCompanyMemberDetailResponseScheme:
     members = await service.get_company_members(
         company_id=company_id,
@@ -136,7 +136,7 @@ async def get_company_users_request(
     company_id: UUID,
     status: CompanyRequestStatus = None,
     page: int = 1,
-    limit: int = Depends(get_companies_users_request_page_limit),
+    limit: int = COMPANIES_USERS_REQUEST_PAGE_LIMIT,
 ) -> CompanyRequestListDetailResponseScheme:
     invitations = await service.get_company_users_request(
         company_id=company_id,

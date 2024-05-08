@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
+from app.core.constants import QUIZ_PAGE_LIMIT
 from app.db.models import User
 from app.schemas.quiz import (
     AnswerCreateScheme,
@@ -13,12 +14,18 @@ from app.schemas.quiz import (
     QuizCreateRequestScheme,
     QuizDetailScheme,
 )
+from app.schemas.user_quiz import (
+    UserQuizAverageScoreScheme,
+    UserQuizCreateScheme,
+    UserQuizDetailScheme,
+)
 from app.services.auth import GenericAuthService
 from app.services.quiz import QuizService
-from app.utils.quiz import get_quiz_page_limit
-from app.utils.services import get_quiz_service
+from app.services.user_quiz import UserQuizService
+from app.utils.services import get_quiz_service, get_user_quiz_service
 
 quiz_router = APIRouter()
+user_quiz_router = APIRouter()
 
 
 @quiz_router.post("/{company_id}")
@@ -41,7 +48,7 @@ async def get_all_company_quizzes(
     service: Annotated[QuizService, Depends(get_quiz_service)],
     company_id: UUID,
     page: int = 1,
-    limit: int = Depends(get_quiz_page_limit),
+    limit: int = QUIZ_PAGE_LIMIT,
 ) -> ListQuizDetailScheme:
     quiz = await service.get_all_company_quizzes(
         company_id=company_id, page=page, limit=limit
@@ -115,3 +122,57 @@ async def delete_answer(
 ) -> AnswerDetailScheme:
     answer = await service.delete_answer(answer_id=answer_id, user=user)
     return answer
+
+
+# user quiz routers
+
+
+@user_quiz_router.post("/take/{quiz_id}")
+async def take_quiz(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    quiz_id: UUID,
+    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
+    body: UserQuizCreateScheme,
+) -> UserQuizDetailScheme:
+    user_quiz = await service.record_user_quiz(
+        scheme=body, quiz_id=quiz_id, user=user
+    )
+    return user_quiz
+
+
+@user_quiz_router.get("/{user_quiz_id}")
+async def get_user_quiz(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    user_quiz_id: UUID,
+) -> UserQuizDetailScheme:
+    user_quiz = await service.get_user_quiz(user_quiz_id=user_quiz_id)
+    return user_quiz
+
+
+@user_quiz_router.get("/member/average/{company_member_id}")
+async def average_member_score(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    company_member_id: UUID,
+) -> UserQuizAverageScoreScheme:
+    average_score = await service.average_company_member_score(
+        company_member_id=company_member_id
+    )
+    return average_score
+
+
+@user_quiz_router.get("/average/{user_id}")
+async def average_user_score(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    user_id: UUID,
+) -> UserQuizAverageScoreScheme:
+    average_score = await service.average_user_score(user_id=user_id)
+    return average_score
+
+
+@user_quiz_router.get("/my_all")
+async def get_all_user_quizzes(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
+) -> ListQuizDetailScheme:
+    quizzes = await service.get_all_user_quizzes(user=user)
+    return quizzes
