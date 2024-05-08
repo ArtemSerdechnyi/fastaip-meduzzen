@@ -19,8 +19,8 @@ from app.schemas.user_quiz import (
 )
 from app.services.base import Service
 from app.services.redis import RedisService
-from app.utils.validators.quiz import QuizAnswerValidator
 from app.utils.generics import ResponseFileType
+from app.utils.validators.quiz import QuizAnswerValidator
 
 
 class UserQuizService(Service):

@@ -16,7 +16,6 @@ from app.schemas.quiz import (
     QuizDetailScheme,
 )
 from app.schemas.user_quiz import (
-    ListUserQuizDetailScheme,
     UserQuizAverageScoreScheme,
     UserQuizCreateScheme,
     UserQuizDetailScheme,
@@ -24,8 +23,8 @@ from app.schemas.user_quiz import (
 from app.services.auth import GenericAuthService
 from app.services.quiz import QuizService
 from app.services.user_quiz import UserQuizService
-from app.utils.services import get_quiz_service, get_user_quiz_service
 from app.utils.generics import ResponseFileType
+from app.utils.services import get_quiz_service, get_user_quiz_service
 
 quiz_router = APIRouter()
 user_quiz_router = APIRouter()
