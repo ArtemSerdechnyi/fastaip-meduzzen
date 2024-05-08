@@ -1,4 +1,5 @@
 import datetime
+import enum
 from typing import List, Self
 from uuid import UUID
 
@@ -62,3 +63,8 @@ class ListUserQuizDetailScheme(BaseModel):
 
 class UserQuizAverageScoreScheme(BaseModel):
     average_score: float
+
+
+class ResponseFileTypeEnum(str, enum.Enum):
+    JSON = "json"
+    CSV = "csv"

@@ -81,8 +81,6 @@ class AbstractQuizValidator(BaseValidator, ABC):
 
         return wrapper
 
-
-class QuizCreateValidator(AbstractQuizValidator):
     def validate_user_is_owner_or_admin_by_company_id(self, f):
         """
         Validate that the user is admin or owner of the given company by company_id.
@@ -106,6 +104,7 @@ class QuizCreateValidator(AbstractQuizValidator):
             owner_check_query = self._build_where_exist_select_query(
                 Company.company_id == company_id,
                 Company.owner_id == user.user_id,
+                Company.is_active == True,
             )
 
             query = select(or_(owner_check_query, admin_check_query))
@@ -121,6 +120,8 @@ class QuizCreateValidator(AbstractQuizValidator):
 
         return wrapper
 
+
+class QuizCreateValidator(AbstractQuizValidator):
     def validate_user_is_owner_or_admin_by_quiz_id(self, f):
         """
         Validate that the user is admin or owner of the given company by quiz_id.
@@ -519,6 +520,46 @@ class QuizAnswerValidator(AbstractQuizValidator):
                 error_message = "Validation error. User user_quiz dont exist"
                 raise PermissionError(error_message)
 
+            return await f(self_service, **kwargs)
+
+        return wrapper
+
+    def validate_user_is_owner_or_admin_by_company_member_id(self, f):
+        """
+        Validate that the user is admin or owner of the given company_member_id.
+
+        Depends: member_id, user
+        """
+
+        @wraps(f)
+        async def wrapper(self_service, **kwargs):
+            member_id: UUID = kwargs["member_id"]
+            user: User = kwargs["user"]
+
+            admin_role = CompanyRole.admin.value
+
+            admin_check_query = self._build_where_exist_select_query(
+                CompanyMember.member_id == member_id,
+                CompanyMember.user_id == user.user_id,
+                CompanyMember.role == admin_role,
+                CompanyMember.is_active == True,
+            )
+            owner_check_query = self._build_where_exist_select_query(
+                CompanyMember.member_id == member_id,
+                CompanyMember.is_active == True,
+                CompanyMember.company_id == Company.company_id,
+                Company.owner_id == user.user_id,
+            )
+
+            query = select(or_(owner_check_query, admin_check_query))
+
+            result = await self_service.session.execute(query)
+            exist = result.scalar()
+
+            if not exist:
+                raise PermissionError(
+                    "Validation error. User is not admin or owner."
+                )
             return await f(self_service, **kwargs)
 
         return wrapper

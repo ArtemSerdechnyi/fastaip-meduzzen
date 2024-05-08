@@ -27,6 +27,7 @@ python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 python-multipart = "^0.0.9"
 pyjwt = "^2.8.0"
 coverage = "^7.5.0"
+pandas = "^2.2.2"
 
 [build-system]
 requires = ["poetry-core"]

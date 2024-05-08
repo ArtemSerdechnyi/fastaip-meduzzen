@@ -2,6 +2,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from starlette.responses import Response, StreamingResponse
 
 from app.core.constants import QUIZ_PAGE_LIMIT
 from app.db.models import User
@@ -22,6 +23,7 @@ from app.schemas.user_quiz import (
 from app.services.auth import GenericAuthService
 from app.services.quiz import QuizService
 from app.services.user_quiz import UserQuizService
+from app.utils.generics import ResponseFileType
 from app.utils.services import get_quiz_service, get_user_quiz_service
 
 quiz_router = APIRouter()
@@ -140,7 +142,7 @@ async def take_quiz(
     return user_quiz
 
 
-@user_quiz_router.get("/{user_quiz_id}")
+@user_quiz_router.get("/user_quiz/{user_quiz_id}")
 async def get_user_quiz(
     service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
     user_quiz_id: UUID,
@@ -173,6 +175,60 @@ async def average_user_score(
 async def get_all_user_quizzes(
     service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
     user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
-) -> ListQuizDetailScheme:
+    response_file_type: ResponseFileType,
+) -> Response:
     quizzes = await service.get_all_user_quizzes(user=user)
-    return quizzes
+    content = service.export_user_quizzes(
+        scheme=quizzes, file_type=response_file_type
+    )
+    media_type = service.get_media_type(file_type=response_file_type)
+    return StreamingResponse(content=content, media_type=media_type)
+
+
+@user_quiz_router.get("/member/{company_member_id}")
+async def get_company_member_quizzes(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
+    member_id: UUID,
+    response_file_type: ResponseFileType,
+) -> Response:
+    quizzes = await service.get_company_member_quizzes(
+        member_id=member_id, user=user
+    )
+    content = service.export_user_quizzes(
+        scheme=quizzes, file_type=response_file_type
+    )
+    media_type = service.get_media_type(file_type=response_file_type)
+    return StreamingResponse(content=content, media_type=media_type)
+
+
+@user_quiz_router.get("/member_all/{company_id}")
+async def get_all_company_members_quizzes(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
+    company_id: UUID,
+    response_file_type: ResponseFileType,
+) -> Response:
+    quizzes = await service.get_all_company_members_quizzes(
+        company_id=company_id, user=user
+    )
+    content: str = service.export_user_quizzes(
+        scheme=quizzes, file_type=response_file_type
+    )
+    media_type = service.get_media_type(file_type=response_file_type)
+    return StreamingResponse(content=content, media_type=media_type)
+
+
+@user_quiz_router.get("/quiz_all/{quiz_id}")
+async def get_all_quiz_answers(
+    service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
+    user: Annotated[User, Depends(GenericAuthService.get_user_from_any_token)],
+    quiz_id: UUID,
+    response_file_type: ResponseFileType,
+) -> Response:
+    quizzes = await service.get_all_quiz_answers(quiz_id=quiz_id, user=user)
+    content = service.export_user_quizzes(
+        scheme=quizzes, file_type=response_file_type
+    )
+    media_type = service.get_media_type(file_type=response_file_type)
+    return StreamingResponse(content=content, media_type=media_type)
