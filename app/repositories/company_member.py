@@ -1,3 +1,4 @@
+from typing import Sequence
 from uuid import UUID
 
 from sqlalchemy import and_, insert, update
@@ -122,3 +123,13 @@ class CompanyMemberRepository:
         raise CompanyMemberNotFoundException(
             company_id=company_id, user_id=user_id
         )
+
+    async def get_user_id_company_members(self, company_id: UUID) -> Sequence:
+        query = select(CompanyMember.user_id).where(
+            and_(
+                CompanyMember.company_id == company_id,
+                CompanyMember.is_active == True,
+            )
+        )
+        result = await self.session.execute(query)
+        return result.scalars().all()

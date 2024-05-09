@@ -66,6 +66,7 @@ class User(Base):
         "UserRequest", back_populates="user", cascade="all, delete-orphan"
     )
     quizzes = relationship("UserQuiz", back_populates="user")
+    notifications = relationship("Notification", back_populates="user")
 
     __repr_cols_num = 2
     __repr_cols = ("email", "is_active")
@@ -320,3 +321,31 @@ class UserQuizAnswers(Base):
     answer = relationship("Answer", back_populates="user_answers")
 
     __repr_cols_num = 4
+
+
+# notifications
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    notification_id = Column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    text = Column(String, nullable=False)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.user_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    time = Column(
+        TIMESTAMP(timezone=True),
+        default=lambda: datetime.datetime.now(datetime.timezone.utc),
+    )
+    status = Column(
+        Boolean, default=True, nullable=False
+    )  # True = is active, False = inactive
+
+    user = relationship("User", back_populates="notifications")
+
+    __repr_cols_num = 5

@@ -2,8 +2,11 @@ from uuid import UUID
 
 from app.db.models import User
 from app.repositories.answer import AnswerRepository
+from app.repositories.company_member import CompanyMemberRepository
+from app.repositories.notification import NotificationRepository
 from app.repositories.question import QuestionRepository
 from app.repositories.quiz import QuizRepository
+from app.schemas.notification import NotificationCreateScheme
 from app.schemas.quiz import (
     AnswerCreateScheme,
     AnswerDetailScheme,
@@ -24,6 +27,8 @@ class QuizService(Service):
         self.quiz_repository = QuizRepository(session)
         self.question_repository = QuestionRepository(session)
         self.answer_repository = AnswerRepository(session)
+        self.company_member_repository = CompanyMemberRepository(session)
+        self.notification_repo = NotificationRepository(session)
         super().__init__(session)
 
     @validator.validate_quiz_company_and_name_unique
@@ -51,6 +56,24 @@ class QuizService(Service):
         nested_quiz = await self.quiz_repository.get_nested_quiz(
             quiz_id=raw_quiz.quiz_id
         )
+
+        # send notification to company members
+        raw_members_ids = (
+            await self.company_member_repository.get_user_id_company_members(
+                company_id=company_id
+            )
+        )
+        text = f'New quiz "{scheme.name}" created'
+        for user_id in raw_members_ids:
+            notification_scheme = NotificationCreateScheme(
+                text=text, user_id=user_id
+            )
+            new_notification = (
+                await self.notification_repo.create_notification(
+                    scheme=notification_scheme
+                )
+            )
+
         return QuizDetailScheme.from_orm(nested_quiz)
 
     async def get_all_company_quizzes(
