@@ -4,23 +4,22 @@ from io import StringIO
 from uuid import UUID
 
 import pandas as pd
-from sqlalchemy import func, select
 
 from app.core.constants import USER_QUIZ_ANSWERS_EXPIRE_TIME
-from app.db.models import User, Quiz, UserQuiz
+from app.db.models import User
 from app.repositories.company_member import CompanyMemberRepository
 from app.repositories.quiz import QuizRepository
 from app.repositories.user_quiz import UserQuizRepository
 from app.repositories.user_quiz_answers import UserQuizAnswersRepository
 from app.schemas.analytics import (
-    UserQuizAverageScoreScheme,
-    ListUserQuizAverageScoreScheme,
-    UserQuizLastPassingScheme,
-    ListUserQuizLastPassingScheme,
-    ListCompanyMemberUserQuizAverageScoreScheme,
-    CompanyMemberUserQuizAverageScoreScheme,
     CompanyMemberLastPassingQuizScheme,
+    CompanyMemberUserQuizAverageScoreScheme,
     ListCompanyMemberLastPassingQuizScheme,
+    ListCompanyMemberUserQuizAverageScoreScheme,
+    ListUserQuizAverageScoreScheme,
+    ListUserQuizLastPassingScheme,
+    UserQuizAverageScoreScheme,
+    UserQuizLastPassingScheme,
 )
 from app.schemas.quiz import QuizDetailScheme
 from app.schemas.user_quiz import (

@@ -5,10 +5,10 @@ from fastapi import APIRouter, Depends
 
 from app.db.models import User
 from app.schemas.analytics import (
-    UserQuizAverageScoreScheme,
+    ListCompanyMemberUserQuizAverageScoreScheme,
     ListUserQuizAverageScoreScheme,
     ListUserQuizLastPassingScheme,
-    ListCompanyMemberUserQuizAverageScoreScheme,
+    UserQuizAverageScoreScheme,
 )
 from app.services.auth import GenericAuthService
 from app.services.user_quiz import UserQuizService
