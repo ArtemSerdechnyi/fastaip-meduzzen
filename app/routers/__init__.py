@@ -7,10 +7,10 @@ from app.routers import (
     company,
     company_action,
     health_check,
+    notification,
     quiz,
     user,
     user_action,
-    notification,
 )
 
 __all__ = [
