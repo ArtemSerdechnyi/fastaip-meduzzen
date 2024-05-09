@@ -5,6 +5,10 @@ from uuid import UUID
 from pydantic import BaseModel, field_validator
 
 
+class AverageScoreScheme(BaseModel):
+    average_score: float
+
+
 class UserQuizAverageScoreScheme(BaseModel):
     quiz_id: Optional[UUID]
     average_score: float

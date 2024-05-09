@@ -6,7 +6,7 @@ from starlette.responses import Response, StreamingResponse
 
 from app.core.constants import QUIZ_PAGE_LIMIT
 from app.db.models import User
-from app.schemas.analytics import UserQuizAverageScoreScheme
+from app.schemas.analytics import UserQuizAverageScoreScheme, AverageScoreScheme
 from app.schemas.quiz import (
     AnswerCreateScheme,
     AnswerDetailScheme,
@@ -155,7 +155,7 @@ async def get_user_quiz(
 async def average_member_score(
     service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
     company_member_id: UUID,
-) -> UserQuizAverageScoreScheme:
+) -> AverageScoreScheme:
     average_score = await service.average_company_member_score(
         company_member_id=company_member_id
     )
@@ -166,7 +166,7 @@ async def average_member_score(
 async def average_user_score(
     service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
     user_id: UUID,
-) -> UserQuizAverageScoreScheme:
+) -> AverageScoreScheme:
     average_score = await service.average_user_score(user_id=user_id)
     return average_score
 

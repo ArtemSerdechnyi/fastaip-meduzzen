@@ -8,7 +8,7 @@ from app.schemas.analytics import (
     ListCompanyMemberUserQuizAverageScoreScheme,
     ListUserQuizAverageScoreScheme,
     ListUserQuizLastPassingScheme,
-    UserQuizAverageScoreScheme,
+    UserQuizAverageScoreScheme, AverageScoreScheme,
 )
 from app.services.auth import GenericAuthService
 from app.services.user_quiz import UserQuizService
@@ -21,7 +21,7 @@ quiz_analytics_router = APIRouter()
 @quiz_analytics_router.get("/global_average_score")
 async def get_average_for_all_companies_all_quizzes(
     service: Annotated[UserQuizService, Depends(get_user_quiz_service)],
-) -> UserQuizAverageScoreScheme:
+) -> AverageScoreScheme:
     score = await service.get_average_score_for_all_quizzes()
     return score
 

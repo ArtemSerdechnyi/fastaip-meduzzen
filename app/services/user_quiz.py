@@ -19,7 +19,7 @@ from app.schemas.analytics import (
     ListUserQuizAverageScoreScheme,
     ListUserQuizLastPassingScheme,
     UserQuizAverageScoreScheme,
-    UserQuizLastPassingScheme,
+    UserQuizLastPassingScheme, AverageScoreScheme,
 )
 from app.schemas.quiz import QuizDetailScheme
 from app.schemas.user_quiz import (
@@ -201,7 +201,7 @@ class UserQuizService(Service):
         score = self._get_average_score(
             correct_answers_sum, question_count_sum
         )
-        return UserQuizAverageScoreScheme(average_score=score)
+        return AverageScoreScheme(average_score=score)
 
     @validator.validate_user_has_user_quiz
     async def average_user_score(self, user_id: UUID):
@@ -219,7 +219,7 @@ class UserQuizService(Service):
         score = self._get_average_score(
             correct_answers_sum, question_count_sum
         )
-        return UserQuizAverageScoreScheme(average_score=score)
+        return AverageScoreScheme(average_score=score)
 
     async def get_all_user_quizzes(
         self, user: User
@@ -337,7 +337,7 @@ class UserQuizService(Service):
         score = self._get_average_score(
             correct_answers_sum, question_count_sum
         )
-        return UserQuizAverageScoreScheme(average_score=score)
+        return AverageScoreScheme(average_score=score)
 
     @validator.validate_from_date_and_to_date
     async def get_average_score_for_each_quiz(
