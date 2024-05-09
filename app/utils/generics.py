@@ -23,8 +23,8 @@ type FromDate = Annotated[
 type ToDate = Annotated[
     datetime,
     Field(
-        default=datetime.now().date(),
-        le=datetime.now().date(),
+        default=default_to_date(),
+        le=default_to_date(),
         gt=default_from_date(),
     ),
 ]

@@ -1,4 +1,5 @@
 from abc import ABC
+from datetime import datetime
 from functools import wraps
 from uuid import UUID
 
@@ -44,6 +45,27 @@ class BaseValidator(ABC):
                 raise PermissionError(
                     "Validation error. Company is not exist."
                 )
+            return await func(self_service, **kwargs)
+
+        return wrapper
+
+    def validate_from_date_and_to_date(self, func):
+        """
+        Validate that from_date is before to_date.
+
+        Depends: from_date, to_date
+        """
+
+        @wraps(func)
+        async def wrapper(self_service, **kwargs):
+            from_date: datetime = kwargs["from_date"]
+            to_date: datetime = kwargs["to_date"]
+
+            exist = from_date < to_date
+
+            if not exist:
+                error_message = "Validation error. Invalid date range: from_date must be before to_date."
+                raise PermissionError(error_message)
             return await func(self_service, **kwargs)
 
         return wrapper

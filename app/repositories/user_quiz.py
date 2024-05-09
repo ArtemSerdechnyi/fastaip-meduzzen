@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import Sequence
 from uuid import UUID
 
@@ -143,3 +144,108 @@ class UserQuizRepository:
         result = await self.session.execute(query)
         result = result.scalar()
         return result
+
+    async def get_statistic_for_each_quiz(
+        self, from_date: datetime, to_date: datetime
+    ) -> Sequence:
+        to_date += timedelta(days=1)
+        query = (
+            select(
+                UserQuiz.quiz_id,
+                func.sum(UserQuiz.total_questions),
+                func.sum(UserQuiz.correct_answers_count),
+            )
+            .where(
+                and_(
+                    UserQuiz.attempt_time >= from_date,
+                    UserQuiz.attempt_time < to_date,
+                )
+            )
+            .group_by(UserQuiz.quiz_id)
+        )
+        result = await self.session.execute(query)
+        average_scores = result.fetchall()
+        return average_scores
+
+    async def get_last_passing_for_each_quiz(self) -> Sequence:
+        query = select(
+            UserQuiz.quiz_id,
+            func.max(UserQuiz.attempt_time),
+        ).group_by(UserQuiz.quiz_id)
+        result = await self.session.execute(query)
+        last_passing = result.fetchall()
+        return last_passing
+
+    async def get_statistic_for_each_member_quiz_by_company_id(
+        self, company_id: UUID, from_date: datetime, to_date: datetime
+    ) -> Sequence:
+        to_date += timedelta(days=1)
+        query = (
+            select(
+                CompanyMember.member_id,
+                func.sum(UserQuiz.total_questions),
+                func.sum(UserQuiz.correct_answers_count),
+            )
+            .where(
+                and_(
+                    CompanyMember.company_id == company_id,
+                    CompanyMember.user_id == UserQuiz.user_id,
+                    Quiz.company_id == company_id,
+                    Quiz.quiz_id == UserQuiz.quiz_id,
+                    UserQuiz.attempt_time >= from_date,
+                    UserQuiz.attempt_time < to_date,
+                )
+            )
+            .group_by(CompanyMember.member_id)
+        )
+        result = await self.session.execute(query)
+        average_scores = result.fetchall()
+        return average_scores
+
+    async def get_statistic_for_each_quiz_for_company_member(
+        self, member_id: UUID, from_date: datetime, to_date: datetime
+    ) -> Sequence:
+        to_date += timedelta(days=1)
+        query = (
+            select(
+                UserQuiz.quiz_id,
+                func.sum(UserQuiz.total_questions),
+                func.sum(UserQuiz.correct_answers_count),
+            )
+            .where(
+                and_(
+                    CompanyMember.member_id == member_id,
+                    CompanyMember.user_id == UserQuiz.user_id,
+                    Quiz.company_id == CompanyMember.company_id,
+                    Quiz.quiz_id == UserQuiz.quiz_id,
+                    UserQuiz.attempt_time >= from_date,
+                    UserQuiz.attempt_time < to_date,
+                )
+            )
+            .group_by(UserQuiz.quiz_id)
+        )
+        result = await self.session.execute(query)
+        average_scores = result.fetchall()
+        return average_scores
+
+    async def get_last_passing_for_each_member_quiz_by_company_id(
+        self, company_id: UUID
+    ) -> Sequence:
+        query = (
+            select(
+                CompanyMember.member_id,
+                func.max(UserQuiz.attempt_time),
+            )
+            .where(
+                and_(
+                    CompanyMember.company_id == company_id,
+                    CompanyMember.user_id == UserQuiz.user_id,
+                    Quiz.company_id == company_id,
+                    Quiz.quiz_id == UserQuiz.quiz_id,
+                )
+            )
+            .group_by(CompanyMember.member_id)
+        )
+        result = await self.session.execute(query)
+        last_passing = result.fetchall()
+        return last_passing
