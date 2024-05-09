@@ -6,7 +6,7 @@ from starlette.responses import Response, StreamingResponse
 
 from app.core.constants import QUIZ_PAGE_LIMIT
 from app.db.models import User
-from app.schemas.analytics import UserQuizAverageScoreScheme, AverageScoreScheme
+from app.schemas.analytics import AverageScoreScheme
 from app.schemas.quiz import (
     AnswerCreateScheme,
     AnswerDetailScheme,
