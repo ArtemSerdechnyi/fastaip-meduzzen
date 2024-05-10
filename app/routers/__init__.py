@@ -7,6 +7,7 @@ from app.routers import (
     company,
     company_action,
     health_check,
+    notification,
     quiz,
     user,
     user_action,
@@ -41,4 +42,11 @@ main_router.include_router(quiz.quiz_router, prefix="/quiz", tags=["quiz"])
 # analytics
 main_router.include_router(
     analytics.quiz_analytics_router, prefix="/analytics", tags=["analytics"]
+)
+
+# notifications
+main_router.include_router(
+    notification.notification_router,
+    prefix="/notification",
+    tags=["notification"],
 )

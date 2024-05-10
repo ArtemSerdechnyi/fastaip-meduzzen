@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.postgres import get_async_session
 from app.services.company import CompanyService
 from app.services.company_action import CompanyActionService
+from app.services.notification import NotificationSrvice
 from app.services.quiz import QuizService
 from app.services.user import UserService
 from app.services.user_action import UserActionService
@@ -41,4 +42,11 @@ async def get_quiz_service(db: AsyncSession = Depends(get_async_session)):
 
 async def get_user_quiz_service(db: AsyncSession = Depends(get_async_session)):
     async with UserQuizService(session=db) as service:
+        yield service
+
+
+async def get_notification_service(
+    db: AsyncSession = Depends(get_async_session),
+):
+    async with NotificationSrvice(session=db) as service:
         yield service
