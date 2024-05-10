@@ -61,10 +61,6 @@ class ListUserQuizDetailScheme(BaseModel):
     user_quizzes: List[UserQuizDetailScheme]
 
 
-class UserQuizAverageScoreScheme(BaseModel):
-    average_score: float
-
-
 class ResponseFileTypeEnum(str, enum.Enum):
     JSON = "json"
     CSV = "csv"

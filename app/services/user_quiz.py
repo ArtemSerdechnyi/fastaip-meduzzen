@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from io import StringIO
 from uuid import UUID
 
@@ -10,10 +11,20 @@ from app.repositories.company_member import CompanyMemberRepository
 from app.repositories.quiz import QuizRepository
 from app.repositories.user_quiz import UserQuizRepository
 from app.repositories.user_quiz_answers import UserQuizAnswersRepository
+from app.schemas.analytics import (
+    AverageScoreScheme,
+    CompanyMemberLastPassingQuizScheme,
+    CompanyMemberUserQuizAverageScoreScheme,
+    ListCompanyMemberLastPassingQuizScheme,
+    ListCompanyMemberUserQuizAverageScoreScheme,
+    ListUserQuizAverageScoreScheme,
+    ListUserQuizLastPassingScheme,
+    UserQuizAverageScoreScheme,
+    UserQuizLastPassingScheme,
+)
 from app.schemas.quiz import QuizDetailScheme
 from app.schemas.user_quiz import (
     ListUserQuizDetailScheme,
-    UserQuizAverageScoreScheme,
     UserQuizCreateScheme,
     UserQuizDetailScheme,
 )
@@ -61,6 +72,16 @@ class UserQuizService(Service):
                 count += 1
 
         return count
+
+    @staticmethod
+    def _get_average_score(correct_answers_sum, question_count_sum) -> float:
+        if question_count_sum == 0:
+            return 0
+        elif correct_answers_sum > question_count_sum:
+            raise ValueError(
+                "Correct answers sum cannot be greater than question count sum"
+            )
+        return correct_answers_sum / question_count_sum
 
     @staticmethod
     def _export_user_quizzes_to_json(scheme: ListUserQuizDetailScheme) -> str:
@@ -178,8 +199,10 @@ class UserQuizService(Service):
                 user_id=member.user_id, company_id=member.company_id
             )
         )
-        score = correct_answers_sum / question_count_sum
-        return UserQuizAverageScoreScheme(average_score=score)
+        score = self._get_average_score(
+            correct_answers_sum, question_count_sum
+        )
+        return AverageScoreScheme(average_score=score)
 
     @validator.validate_user_has_user_quiz
     async def average_user_score(self, user_id: UUID):
@@ -194,8 +217,10 @@ class UserQuizService(Service):
                 user_id=user_id,
             )
         )
-        score = correct_answers_sum / question_count_sum
-        return UserQuizAverageScoreScheme(average_score=score)
+        score = self._get_average_score(
+            correct_answers_sum, question_count_sum
+        )
+        return AverageScoreScheme(average_score=score)
 
     async def get_all_user_quizzes(
         self, user: User
@@ -300,3 +325,110 @@ class UserQuizService(Service):
             expire=USER_QUIZ_ANSWERS_EXPIRE_TIME,
         )
         return user_quizzes
+
+    # analytics
+
+    async def get_average_score_for_all_quizzes(self):
+        correct_answers_sum = (
+            await self.user_quiz_repo.get_sum_correct_answers_count_for_all()
+        )
+        question_count_sum = (
+            await self.user_quiz_repo.get_sum_total_questions_for_all()
+        )
+        score = self._get_average_score(
+            correct_answers_sum, question_count_sum
+        )
+        return AverageScoreScheme(average_score=score)
+
+    @validator.validate_from_date_and_to_date
+    async def get_average_score_for_each_quiz(
+        self, from_date: datetime, to_date: datetime
+    ):
+        statistics = await self.user_quiz_repo.get_statistic_for_each_quiz(
+            from_date=from_date, to_date=to_date
+        )
+        quizzes_list = [
+            UserQuizAverageScoreScheme(
+                quiz_id=quiz_id,
+                average_score=self._get_average_score(
+                    correct_answers_count, total_questions
+                ),
+            )
+            for quiz_id, total_questions, correct_answers_count in statistics
+        ]
+        return ListUserQuizAverageScoreScheme(quizzes=quizzes_list)
+
+    async def get_last_passing_time_for_each_quiz(self):
+        statistics = await self.user_quiz_repo.get_last_passing_for_each_quiz()
+        quizzes_list = [
+            UserQuizLastPassingScheme(
+                quiz_id=quiz_id, last_passing=last_passing
+            )
+            for quiz_id, last_passing in statistics
+        ]
+        return ListUserQuizLastPassingScheme(quizzes=quizzes_list)
+
+    @validator.validate_from_date_and_to_date
+    @validator.validate_exist_company_is_active
+    @validator.validate_user_is_owner_or_admin_by_company_id
+    async def get_company_average_score_for_each_member(
+        self,
+        company_id: UUID,
+        from_date: datetime,
+        to_date: datetime,
+        user: User,
+    ):
+        statistics = await self.user_quiz_repo.get_statistic_for_each_member_quiz_by_company_id(
+            company_id=company_id, from_date=from_date, to_date=to_date
+        )
+        quizzes_list = [
+            CompanyMemberUserQuizAverageScoreScheme(
+                member_id=member_id,
+                average_score=self._get_average_score(
+                    correct_answers_count, total_questions
+                ),
+            )
+            for member_id, total_questions, correct_answers_count in statistics
+        ]
+        return ListCompanyMemberUserQuizAverageScoreScheme(
+            members=quizzes_list
+        )
+
+    @validator.validate_from_date_and_to_date
+    @validator.validate_user_is_owner_or_admin_by_company_member_id
+    async def get_average_score_for_each_quiz_by_company_member(
+        self,
+        member_id: UUID,
+        from_date: datetime,
+        to_date: datetime,
+        user: User,
+    ):
+        statistics = await self.user_quiz_repo.get_statistic_for_each_quiz_for_company_member(
+            member_id=member_id, from_date=from_date, to_date=to_date
+        )
+        quizzes_list = [
+            UserQuizAverageScoreScheme(
+                quiz_id=quiz_id,
+                average_score=self._get_average_score(
+                    correct_answers_count, total_questions
+                ),
+            )
+            for quiz_id, total_questions, correct_answers_count in statistics
+        ]
+        return ListUserQuizAverageScoreScheme(quizzes=quizzes_list)
+
+    @validator.validate_exist_company_is_active
+    @validator.validate_user_is_owner_or_admin_by_company_id
+    async def get_company_members_with_last_pass_quiz_time(
+        self, company_id: UUID, user: User
+    ):
+        statistics = await self.user_quiz_repo.get_last_passing_for_each_member_quiz_by_company_id(
+            company_id=company_id
+        )
+        members_list = [
+            CompanyMemberLastPassingQuizScheme(
+                member_id=member_id, last_passing=last_passing
+            )
+            for member_id, last_passing in statistics
+        ]
+        return ListCompanyMemberLastPassingQuizScheme(members=members_list)

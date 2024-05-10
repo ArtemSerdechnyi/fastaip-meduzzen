@@ -3,6 +3,7 @@ from fastapi import APIRouter
 import app.routers.company_action
 import app.routers.user_action
 from app.routers import (
+    analytics,
     company,
     company_action,
     health_check,
@@ -36,3 +37,8 @@ main_router.include_router(
 # quiz routers
 quiz.quiz_router.include_router(quiz.user_quiz_router, prefix="/answer")
 main_router.include_router(quiz.quiz_router, prefix="/quiz", tags=["quiz"])
+
+# analytics
+main_router.include_router(
+    analytics.quiz_analytics_router, prefix="/analytics", tags=["analytics"]
+)
