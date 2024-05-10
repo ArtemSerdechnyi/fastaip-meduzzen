@@ -1,3 +1,4 @@
+from typing import List
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
@@ -23,4 +24,4 @@ class UserRequestDetailResponseScheme(
 
 
 class UserRequestListDetailResponseScheme(BaseModel):
-    requests: list[UserRequestDetailResponseScheme]
+    requests: List[UserRequestDetailResponseScheme]

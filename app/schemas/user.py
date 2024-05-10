@@ -1,3 +1,4 @@
+from typing import List
 from uuid import UUID
 
 from pydantic import (
@@ -67,4 +68,4 @@ class UserUpdateRequestScheme(UserSchemeDetailResponseScheme):
 class UsersListResponseScheme(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    users: list[UserSchemeDetailResponseScheme]
+    users: List[UserSchemeDetailResponseScheme]

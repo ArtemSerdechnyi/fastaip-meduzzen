@@ -29,7 +29,7 @@ class QuestionCreateScheme(BaseModel):
 class QuizCreateRequestScheme(BaseModel):
     name: str
     description: Optional[str]
-    questions: list[QuestionCreateScheme]
+    questions: List[QuestionCreateScheme]
 
     @model_validator(mode="after")
     def check_questions(self) -> Self:

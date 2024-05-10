@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
@@ -34,4 +34,4 @@ class CompanyUpdateRequestScheme(CompanyCreateRequestScheme):
 class CompanyListResponseScheme(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    companies: list[CompanyDetailResponseScheme]
+    companies: List[CompanyDetailResponseScheme]

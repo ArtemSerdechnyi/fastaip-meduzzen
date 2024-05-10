@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 
 from pydantic import BaseModel, field_validator
@@ -15,7 +15,7 @@ class UserQuizAverageScoreScheme(BaseModel):
 
 
 class ListUserQuizAverageScoreScheme(BaseModel):
-    quizzes: list[UserQuizAverageScoreScheme]
+    quizzes: List[UserQuizAverageScoreScheme]
 
 
 class UserQuizLastPassingScheme(BaseModel):
@@ -28,7 +28,7 @@ class UserQuizLastPassingScheme(BaseModel):
 
 
 class ListUserQuizLastPassingScheme(BaseModel):
-    quizzes: list[UserQuizLastPassingScheme]
+    quizzes: List[UserQuizLastPassingScheme]
 
 
 class CompanyMemberUserQuizAverageScoreScheme(BaseModel):
@@ -37,7 +37,7 @@ class CompanyMemberUserQuizAverageScoreScheme(BaseModel):
 
 
 class ListCompanyMemberUserQuizAverageScoreScheme(BaseModel):
-    members: list[CompanyMemberUserQuizAverageScoreScheme]
+    members: List[CompanyMemberUserQuizAverageScoreScheme]
 
 
 class CompanyMemberLastPassingQuizScheme(BaseModel):
@@ -50,4 +50,4 @@ class CompanyMemberLastPassingQuizScheme(BaseModel):
 
 
 class ListCompanyMemberLastPassingQuizScheme(BaseModel):
-    members: list[CompanyMemberLastPassingQuizScheme]
+    members: List[CompanyMemberLastPassingQuizScheme]

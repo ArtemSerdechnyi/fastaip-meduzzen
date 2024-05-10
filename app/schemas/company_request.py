@@ -1,3 +1,4 @@
+from typing import List
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
@@ -21,4 +22,4 @@ class CompanyRequestDetailResponseScheme(CompanyRequestCreateScheme):
 class CompanyRequestListDetailResponseScheme(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    requests: list[CompanyRequestDetailResponseScheme]
+    requests: List[CompanyRequestDetailResponseScheme]

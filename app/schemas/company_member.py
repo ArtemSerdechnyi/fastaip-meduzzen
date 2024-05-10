@@ -1,3 +1,4 @@
+from typing import List
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
@@ -22,7 +23,7 @@ class CompanyMemberDetailResponseScheme(BaseModel):
 class CompanyListMemberDetailResponseScheme(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    members: list[CompanyMemberDetailResponseScheme]
+    members: List[CompanyMemberDetailResponseScheme]
 
 
 class NestedCompanyMemberDetailResponseScheme(
@@ -36,4 +37,4 @@ class NestedCompanyMemberDetailResponseScheme(
 
 
 class ListNestedCompanyMemberDetailResponseScheme(BaseModel):
-    members: list[NestedCompanyMemberDetailResponseScheme]
+    members: List[NestedCompanyMemberDetailResponseScheme]
