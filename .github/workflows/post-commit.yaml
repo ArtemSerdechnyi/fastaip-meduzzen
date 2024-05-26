@@ -1,0 +1,45 @@
+name: post-commit
+
+on:
+  push:
+    paths:
+      - "app/**/*.py"
+      - "pyproject.toml"
+      - "poetry.lock"
+
+permissions:
+  contents: write
+
+jobs:
+  post-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install poetry==1.7.1 ruff==0.3.7
+
+      - name: Export requirements.txt
+        run: poetry export --without-hashes --format=requirements.txt > requirements.txt
+
+      - name: Ruff fix
+        run: ruff check --fix --exit-zero app/
+
+      - name: Ruff format
+        run: ruff format app/
+
+      - name: Ruff sort imports
+        run: ruff check app/ --select I --fix
+
+      - name: Commit
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Post-commit autocommit. By .github/workflows/post-commit.yaml"
+          file_pattern: "app/**/*.py requirements.txt"

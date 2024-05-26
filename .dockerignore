@@ -1,0 +1,45 @@
+# Python
+/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+/env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Testing
+.tox/
+.coverage*
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+
+# Version control
+.git/
+.mypy_cache/
+
+# Testing and coverage tools
+.pytest_cache/
+.hypothesis/
+
+# Translations
+*.mo
+
+# Databases
+*.db
+*.sqlite
+
+# Miscellaneous
+.cache/
+*.css.map
+*.egg-info
+*.sql.gz
+*.md
+.project
+.idea/
+.pydevproject
+.idea/workspace.xml
